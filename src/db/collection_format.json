@@ -1,0 +1,11 @@
+{
+    "forged": {
+        "current": "0",
+        "past": "0"
+    },
+    "accounts": {
+        "address": "",
+        "pending": "0",
+        "latestPayoutDate": ""
+    }
+}

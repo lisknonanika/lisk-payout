@@ -1,0 +1,16 @@
+{
+    "url": "mongodb://127.0.0.1:27017",
+    "auth": {
+        "auth": {
+            "user": "payout",
+            "password": "payout"
+        },
+        "authSource": "lisk-payout",
+        "useNewUrlParser": true,
+        "useUnifiedTopology": true
+    },
+    "collection": {
+        "forged": "forged",
+        "accounts": "accounts"
+    }
+}
