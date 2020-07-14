@@ -1,6 +1,6 @@
 const { APIClient, transaction, cryptography} = require("lisk-elements");
 const { BigNum } = transaction.utils;
-const conf = require("./batchConfig.json")
+const conf = require("../config.json");
 const db = require("../db");
 
 const client = conf.mainnet? APIClient.createMainnetAPIClient(): APIClient.createTestnetAPIClient();
@@ -33,14 +33,16 @@ const setVoters = async(address, offset, voters) => {
     try {
         const liskData = await client.voters.get({address: address, offset: offset, limit: 100});
         if (liskData.data.voters.length === 0) return;
-        liskData.data.voters.forEach(voter => voters.push(voter));
+        liskData.data.voters.forEach(voter => {
+            if (+voter.balance > 0) voters.push(voter);
+        });
         if (voters.length < liskData.data.votes) await setVoters(address, offset + 100, voters);
     }catch (err) {
         console.log(err);
     }
 }
 
-(async() => {
+module.exports = async() => {
     try {
         const address = cryptography.getAddressFromPublicKey(conf.publicKey);
         // // get forged
@@ -63,9 +65,11 @@ const setVoters = async(address, offset, voters) => {
         voters.forEach(async voter => {
             const voteRate = new BigNum(voter.balance).div(voteWeight).toString();
             const voteReward = Math.trunc(new BigNum(reward).mul(voteRate)).toString();
-            const account = await db.getAccountByPublicKey(voter.publicKey);
-            const pending = account? new BigNum(voteReward).add(account.pending).toString(): voteReward;
-            await db.updateAccount(voter.publicKey, pending, false);
+            if (+voteReward > 0) {
+                const account = await db.getAccountByPublicKey(voter.publicKey);
+                const pending = account? new BigNum(voteReward).add(account.pending).toString(): voteReward;
+                await db.updateAccount(voter.publicKey, pending, false);
+            }
         });
 
         // update forged
@@ -74,4 +78,4 @@ const setVoters = async(address, offset, voters) => {
     } catch (err) {
         console.log(err);
     }
-})();
+}

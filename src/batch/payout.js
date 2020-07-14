@@ -1,14 +1,14 @@
 const { APIClient, transaction, cryptography} = require("lisk-elements");
 const { utils } = transaction;
 const { BigNum } = utils;
-const conf = require("./batchConfig.json")
+const conf = require("../config.json");
 const db = require("../db");
 
 const client = conf.mainnet? APIClient.createMainnetAPIClient(): APIClient.createTestnetAPIClient();
 
 const sleep = msec => new Promise(resolve => setTimeout(resolve, msec));
 
-(async() => {
+module.exports = async() => {
     const minimum = utils.convertLSKToBeddows(conf.minimum.toString());
     const targets = await db.getAccountOfPayoutTarget(minimum);
     targets.forEach(async t => {
@@ -29,4 +29,4 @@ const sleep = msec => new Promise(resolve => setTimeout(resolve, msec));
             console.log(err);
         }
     });
-})();
+}

@@ -1,4 +1,5 @@
 {
+    "port": 3210,
     "publicKey": "",
     "passphrase": "",
     "secondPassphrase": "",
