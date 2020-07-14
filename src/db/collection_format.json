@@ -4,7 +4,7 @@
         "past": "0"
     },
     "accounts": {
-        "address": "",
+        "publicKey": "",
         "pending": "0",
         "latestPayoutDate": ""
     }
