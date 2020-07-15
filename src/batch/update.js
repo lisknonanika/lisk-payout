@@ -65,7 +65,7 @@ module.exports = async() => {
         voters.forEach(async voter => {
             const voteRate = new BigNum(voter.balance).div(voteWeight).toString();
             const voteReward = Math.trunc(new BigNum(reward).mul(voteRate)).toString();
-            if (+voteReward > 0) {
+            if (voter.address !== address && +voteReward > 0) {
                 const account = await db.getAccountByPublicKey(voter.publicKey);
                 const pending = account? new BigNum(voteReward).add(account.pending).toString(): voteReward;
                 await db.updateAccount(voter.publicKey, pending, false);

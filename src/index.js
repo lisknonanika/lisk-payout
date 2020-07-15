@@ -1,7 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const helmet = require("helmet");
-const { APIClient, transactions } = require("lisk-elements");
+const { APIClient, transactions, cryptography } = require("lisk-elements");
 const conf = require("./config.json");
 const db = require("./db");
 
@@ -36,6 +36,24 @@ router.get('/', (req, res) => {
         const pending = dbData? transactions.utils.convertBeddowsToLSK(dbData.pending): "0";
         res.json({result: true, pending: pending});
 
+    })().catch((err) => {
+        console.log(err);
+        res.json({result: false, error: "Something happened."});
+    });
+});
+
+/**
+ * get info
+ */
+router.get('/info', (req, res) => {
+    (async () => {
+        res.json({
+            result: true,
+            address: cryptography.getAddressFromPublicKey(conf.publicKey),
+            minimum: conf.minimum,
+            rate: conf.rate,
+            connection: conf.mainnet? "mainnet": "testnet"
+        });
     })().catch((err) => {
         console.log(err);
         res.json({result: false, error: "Something happened."});
