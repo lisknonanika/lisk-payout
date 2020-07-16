@@ -1,15 +1,17 @@
 const { APIClient, transaction, cryptography} = require("lisk-elements");
 const { BigNum } = transaction.utils;
+const { MongoClient } = require("mongodb");
 const conf = require("../config.json");
 const db = require("../db");
 
 const client = conf.mainnet? APIClient.createMainnetAPIClient(): APIClient.createTestnetAPIClient();
+let con = null;
 
 const getMyReward = async(address) => {
     try {
         const liskData = await client.delegates.getForgingStatistics(address);
         const current = liskData.data;
-        const dbData = await db.getForged();
+        const dbData = await db.getForged(con);
         if (!dbData) return {current: current.forged, past: "0", diff: current.forged}
         return {current: current.forged, past: dbData.current, diff: new BigNum(current.forged).sub(dbData.current).toString()}
     }catch (err) {
@@ -43,6 +45,7 @@ const setVoters = async(address, offset, voters) => {
 }
 
 module.exports = async() => {
+    con = await MongoClient.connect(db.config.url, db.config.auth);
     try {
         const address = cryptography.getAddressFromPublicKey(conf.publicKey);
         // // get forged
@@ -62,20 +65,22 @@ module.exports = async() => {
         const reward = new BigNum(myReward.diff).mul(conf.rate).toString();
 
         // update account
-        voters.forEach(async voter => {
+        await Promise.all(voters.map(async voter => {
             const voteRate = new BigNum(voter.balance).div(voteWeight).toString();
             const voteReward = Math.trunc(new BigNum(reward).mul(voteRate)).toString();
             if (voter.address !== address && +voteReward > 0) {
-                const account = await db.getAccountByPublicKey(voter.publicKey);
+                const account = await db.getAccountByPublicKey(con, voter.publicKey);
                 const pending = account? new BigNum(voteReward).add(account.pending).toString(): voteReward;
-                await db.updateAccount(voter.publicKey, pending, false);
+                await db.updateAccount(con, voter.publicKey, pending, false);
             }
-        });
+        }));
 
         // update forged
-        await db.updateForged(myReward.current, myReward.past);
-
+        await db.updateForged(con, myReward.current, myReward.past);
+        
     } catch (err) {
         console.log(err);
+    } finally {
+        if (con && con.isConnected) await con.close();
     }
 }

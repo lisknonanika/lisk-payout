@@ -2,6 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const helmet = require("helmet");
 const { APIClient, transactions, cryptography } = require("lisk-elements");
+const { MongoClient } = require("mongodb");
 const conf = require("./config.json");
 const db = require("./db");
 
@@ -18,8 +19,10 @@ app.use('/payout', router);
 /**
  * get pending
  */
-router.get('/', (req, res) => {
-    (async () => {
+router.get('/', async (req, res) => {
+    let con = null;
+    try {
+        con = await MongoClient.connect(db.config.url, db.config.auth);
         const address = req.query.address;
         if (!address) {
             res.json({result: false, error: "parameter: address is required!"});
@@ -32,21 +35,22 @@ router.get('/', (req, res) => {
             return;
         } 
         const publicKey = liskData.data[0].publicKey;
-        const dbData = await db.getAccountByPublicKey(publicKey);
+        const dbData = await db.getAccountByPublicKey(con, publicKey);
         const pending = dbData? transactions.utils.convertBeddowsToLSK(dbData.pending): "0";
         res.json({result: true, pending: pending});
-
-    })().catch((err) => {
+    } catch (err) {
         console.log(err);
         res.json({result: false, error: "Something happened."});
-    });
+    } finally {
+        if (con && con.isConnected) await con.close();
+    }
 });
 
 /**
  * get info
  */
-router.get('/info', (req, res) => {
-    (async () => {
+router.get('/info', async (req, res) => {
+    try {
         res.json({
             result: true,
             address: cryptography.getAddressFromPublicKey(conf.publicKey),
@@ -54,10 +58,10 @@ router.get('/info', (req, res) => {
             rate: conf.rate,
             connection: conf.mainnet? "mainnet": "testnet"
         });
-    })().catch((err) => {
+    } catch(err) {
         console.log(err);
         res.json({result: false, error: "Something happened."});
-    });
+    };
 });
 
 app.listen(conf.port || 3000);
