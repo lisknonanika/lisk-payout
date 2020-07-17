@@ -29,7 +29,9 @@ router.get('/', async (req, res) => {
             return;
         }
 
-        if (!transactions.utils.validateAddress(address)) {
+        try {
+            transactions.utils.validateAddress(address);
+        } catch (err) {
             res.json({result: true, pending: "0"});
             return;
         }
