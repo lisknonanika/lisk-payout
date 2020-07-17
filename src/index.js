@@ -29,6 +29,10 @@ router.get('/', async (req, res) => {
             return;
         }
 
+        if (!transactions.utils.validateAddress(address)) {
+            res.json({result: true, pending: "0"});
+            return;
+        }
         const liskData = await client.accounts.get({address: address});
         if (!liskData.data) {
             res.json({result: true, pending: "0"});
