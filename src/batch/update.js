@@ -65,15 +65,15 @@ module.exports = async() => {
         const reward = new BigNum(myReward.diff).mul(conf.rate).toString();
 
         // update account
-        await Promise.all(voters.map(async voter => {
-            const voteRate = new BigNum(voter.balance).div(voteWeight).toString();
+        for (t of voters) {
+            const voteRate = new BigNum(t.balance).div(voteWeight).toString();
             const voteReward = Math.trunc(new BigNum(reward).mul(voteRate)).toString();
-            if (voter.address !== address && +voteReward > 0) {
-                const account = await db.getAccountByPublicKey(con, voter.publicKey);
+            if (t.address !== address && +voteReward > 0) {
+                const account = await db.getAccountByPublicKey(con, t.publicKey);
                 const pending = account? new BigNum(voteReward).add(account.pending).toString(): voteReward;
-                await db.updateAccount(con, voter.publicKey, pending, false);
+                await db.updateAccount(con, t.publicKey, pending, false);
             }
-        }));
+        }
 
         // update forged
         await db.updateForged(con, myReward.current, myReward.past);
