@@ -32,18 +32,34 @@ router.get('/', async (req, res) => {
         try {
             transactions.utils.validateAddress(address);
         } catch (err) {
-            res.json({result: true, pending: "0"});
+            res.json({result: true, pending: "0", history: []});
             return;
         }
         const liskData = await client.accounts.get({address: address});
-        if (!liskData.data) {
-            res.json({result: true, pending: "0"});
+        if (!liskData.data || liskData.data.length === 0) {
+            res.json({result: true, pending: "0", history: []});
             return;
         } 
         const publicKey = liskData.data[0].publicKey;
         const dbData = await db.getAccountByPublicKey(con, publicKey);
         const pending = dbData? transactions.utils.convertBeddowsToLSK(dbData.pending): "0";
-        res.json({result: true, pending: pending});
+
+        const liskTrxData = await client.transactions.get({
+            senderPublicKey: conf.publicKey,
+            recipientPublicKey: publicKey,
+            data: conf.message,
+            sort: "timestamp:desc",
+            offset: 0,
+            limit: 100
+        });
+        let history = [];
+        for (t of liskTrxData.data) {
+            const id = t.id;
+            const amount = transactions.utils.convertBeddowsToLSK(t.amount);
+            const payoutDate = new Date(transactions.constants.EPOCH_TIME_MILLISECONDS + (t.timestamp * 1000));
+            history.push({id: id, amount: amount, payoutDate: payoutDate});
+        }
+        res.json({result: true, pending: pending, history: history});
     } catch (err) {
         console.log(err);
         res.json({result: false, error: "Something happened."});
