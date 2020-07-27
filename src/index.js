@@ -36,7 +36,7 @@ router.get('/', async (req, res) => {
             return;
         }
         const liskData = await client.accounts.get({address: address});
-        if (!liskData.data || liskData.data.length === 0) {
+        if (!liskData.data || liskData.data.length === 0 || !liskData.data[0].publicKey) {
             res.json({result: true, pending: "0", history: []});
             return;
         } 
