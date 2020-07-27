@@ -11,6 +11,8 @@ DB:
   lisk-payout
 
 Collection:
+  pwd
+    { pwd: String }
   forged
     { current: String, past: String }
   accounts
