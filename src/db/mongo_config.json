@@ -10,6 +10,7 @@
         "useUnifiedTopology": true
     },
     "collection": {
+        "pwd": "pwd",
         "forged": "forged",
         "accounts": "accounts"
     }

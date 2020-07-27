@@ -2,6 +2,17 @@ const { transaction } = require("lisk-elements");
 const { BigNum } = transaction.utils;
 const conf = require("./mongo_config.json");
 
+module.exports.getPwd = async(con) => {
+    try {
+        const db = await con.db(conf.auth.authSource);
+        const tbl = await db.collection(conf.collection.pwd);
+        const data = await tbl.findOne();
+        return data;
+    } catch (err) {
+        console.log(err);
+    }
+}
+
 module.exports.getForged = async(con) => {
     try {
         const db = await con.db(conf.auth.authSource);
