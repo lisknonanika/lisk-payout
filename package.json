@@ -1,0 +1,28 @@
+{
+  "name": "lisk-payout",
+  "version": "3.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc --build",
+    "update": "node --experimental-modules --es-module-specifier-resolution=node ./dist/update.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lisknonanika/lisk-payout.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/lisknonanika/lisk-payout/issues"
+  },
+  "homepage": "https://github.com/lisknonanika/lisk-payout#readme",
+  "dependencies": {
+    "@liskhq/lisk-transactions": "^5.1.1",
+    "node-fetch": "^2.6.1"
+  },
+  "devDependencies": {
+    "@types/node-fetch": "^2.5.12"
+  }
+}
