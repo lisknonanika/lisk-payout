@@ -1,10 +1,10 @@
-export const API_URL:string = "https://testnet-service.lisk.io/api/v2"
+export const API_URL:string = "https://mainnet-service.ysdev.work/api/v2"
 export const DATA_FILE_PATH:string = "./data/data.json";
 export const RATE:number = 0.6;
 export const FEE:number = 0.003;
 export const DELEGATE = {
-    NAME: "ysdev",
-    ADDRESS: "lskysdevwuzkpjav7q8umak8nn68n5sd6xx5j7cys",
+    NAME: "liskjapan",
+    ADDRESS: "lsk4u6zpqzzotweghzkyuqjmyeujbna5pkxm99vdt",
     MULTI_SIGNATURE: false,
     PASS_PHRASE: [
         ""
