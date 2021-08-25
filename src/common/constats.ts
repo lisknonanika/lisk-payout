@@ -1,27 +1,35 @@
-export const API_URL:string = "https://mainnet-service.ysdev.work/api/v2"
-export const DATA_FILE_PATH:string = "./data/data.json";
-export const RATE:number = 0.6;
-export const FEE:number = 0.003;
+export const NETWORK:number = 1;    // 0:Mainnet, 1:Testnet
+
+export const API_URL:string[] = [
+    "https://service.lisk.com/api/v2",
+    "https://testnet-service.lisk.com/api/v2",
+];
+
 export const DELEGATE = {
-    NAME: "liskjapan",
+    NAME: "ysdev",
     ADDRESS: "lsk4u6zpqzzotweghzkyuqjmyeujbna5pkxm99vdt",
     MULTI_SIGNATURE: false,
     PASS_PHRASE: [
         ""
-    ]
+    ],
+    RATE: 0.5,
+    FEE: "300000"
 }
 
-export interface DATA_REWARDS {
+export interface REWARD {
+    id:number;
     current:string;
     prev:string;
+    diff:string;
 }
 
-export interface DATA_VOTER {
+export interface VOTER {
     address:string;
     reward:string;
 }
 
-export interface DATA {
-    rewards:DATA_REWARDS;
-    voters:DATA_VOTER[];
+export interface HISTORU {
+    address:string;
+    reward:string;
+    timestamp:bigint;
 }

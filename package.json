@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc --build",
-    "update": "node --experimental-modules --es-module-specifier-resolution=node ./dist/update.js"
+    "app": "node --experimental-modules --es-module-specifier-resolution=node ./dist/app.js"
   },
   "repository": {
     "type": "git",
@@ -20,6 +20,7 @@
   "homepage": "https://github.com/lisknonanika/lisk-payout#readme",
   "dependencies": {
     "@liskhq/lisk-transactions": "^5.1.1",
+    "mysql2": "^2.3.0",
     "node-fetch": "^2.6.1"
   },
   "devDependencies": {
