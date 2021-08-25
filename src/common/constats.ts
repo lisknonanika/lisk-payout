@@ -4,6 +4,10 @@ export const API_URL:string[] = [
   "https://service.lisk.com/api/v2",
   "https://testnet-service.lisk.com/api/v2",
 ];
+export const WS_URL:string[] = [
+  "wss://mainnet-service.ysdev.work/ws",
+  "wss://testnet-service.ysdev.work/ws",
+];
 
 export const DELEGATE = {
   NAME: "ysdev",

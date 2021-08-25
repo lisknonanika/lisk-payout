@@ -7,7 +7,7 @@ import { updateReward, updateVoter, updateManage } from './action';
   let exitCd = 0;
   let mysqlConnection:mysql.Connection|undefined = undefined;
   try {
-    console.info(`Start payout: NETWORK=${NETWORK}`);
+    console.info(`[lisk-payout] Start: NETWORK=${NETWORK}`);
 
     // Update reward
     mysqlConnection = await getMysqlConnection();
@@ -36,7 +36,7 @@ import { updateReward, updateVoter, updateManage } from './action';
     }
 
   } catch (err) {
-      console.info(`System error`);
+      console.info(`[lisk-payout] System error`);
       console.error(err);
       exitCd = 1;
       
@@ -49,7 +49,7 @@ import { updateReward, updateVoter, updateManage } from './action';
       }
       await mysqlConnection.end();
     }
-    console.info(`End payout: NETWORK=${NETWORK}`);
+    console.info(`[lisk-payout] End: NETWORK=${NETWORK}`);
     process.exit(exitCd);
   }
 })();

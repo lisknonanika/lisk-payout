@@ -1,46 +1,40 @@
 import mysql from 'mysql2/promise';
 import { convertBeddowsToLSK, convertLSKToBeddows } from '@liskhq/lisk-transactions';
+import { findReward, findManage, updManage } from '../common/mysql';
 import { NETWORK, DELEGATE, MANAGE } from '../common/constats';
 
 export const updateManage = async(mysqlConnection:mysql.Connection):Promise<boolean> => {
   try {
-    // Find: reward
-    let selefTarget:number = 0;
-    let poolTarget:number = 0;
-    const [rewardRows]: [mysql.RowDataPacket[], mysql.FieldPacket[]] = await mysqlConnection.query('SELECT * FROM `reward` WHERE `id` = ?', [NETWORK]);
-    rewardRows.forEach((row) => {
-      selefTarget = +convertBeddowsToLSK(row.diff) * DELEGATE.RATE.SELF;
-      poolTarget = +convertBeddowsToLSK(row.diff) * DELEGATE.RATE.POOL;
-    });
-    console.info(`selefTarget=${selefTarget}, poolTarget=${poolTarget}`);
-    if (selefTarget <= 0 && poolTarget <= 0) return true;
+    console.info(`[updateManage] Start`);
 
-    // Initial setting: Manage data
-    const manageData:MANAGE = {
-      id: NETWORK,
-      self: convertLSKToBeddows((Math.floor(selefTarget * 100000000) / 100000000).toString()),
-      pool: convertLSKToBeddows((Math.floor(poolTarget * 100000000) / 100000000).toString())
-    }
+    // Find: reward
+    const rewardRow = await findReward(mysqlConnection);
+    if (!rewardRow || +convertBeddowsToLSK(rewardRow.diff) <= 0) return true;
+    const selefTarget:number = rewardRow? +convertBeddowsToLSK(rewardRow.diff) * DELEGATE.RATE.SELF: 0;
+    const poolTarget:number = rewardRow? +convertBeddowsToLSK(rewardRow.diff) * DELEGATE.RATE.POOL: 0;
+    console.info(`[updateManage] selefTarget=${selefTarget}, poolTarget=${poolTarget}`);
 
     // Find: manage
-    const [manageRows]: [mysql.RowDataPacket[], mysql.FieldPacket[]] = await mysqlConnection.query('SELECT * FROM `manage` WHERE `id` = ?', [NETWORK]);
-    manageRows.forEach((row) => {
-      manageData.self = convertLSKToBeddows((Math.floor((+convertBeddowsToLSK(row.self) + selefTarget) * 100000000) / 100000000).toString());
-      manageData.pool = convertLSKToBeddows((Math.floor((+convertBeddowsToLSK(row.pool) + poolTarget) * 100000000) / 100000000).toString());
-    });
+    const manageRow = await findManage(mysqlConnection);
 
     // Update: Manage data
-    if (manageRows.length > 0) {
-      await mysqlConnection.query('UPDATE `manage` SET ? WHERE `id` = ?', [manageData, NETWORK]);
+    const manageData:MANAGE = { id: NETWORK, self: "0", pool: "0" };
+    if(manageRow) {
+      manageData.self = convertLSKToBeddows((+convertBeddowsToLSK(manageRow.self) + selefTarget).toString());
+      manageData.pool = convertLSKToBeddows((+convertBeddowsToLSK(manageRow.pool) + poolTarget).toString());
     } else {
-      await mysqlConnection.query('INSERT INTO `manage` SET ?', manageData);
+      manageData.self = convertLSKToBeddows(selefTarget.toString());
+      manageData.pool = convertLSKToBeddows(poolTarget.toString())
     }
-
+    await updManage(mysqlConnection, manageRow !== undefined, manageData);
     return true;
 
   } catch (err) {
     console.info(`[updateManage] System error`);
     console.error(err);
     return false;
+    
+  } finally {
+    console.info(`[updateManage] End`);
   }
 }
