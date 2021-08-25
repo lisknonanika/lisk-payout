@@ -8,16 +8,21 @@ export const API_URL:string[] = [
 export const DELEGATE = {
   NAME: "ysdev",
   ADDRESS: "lskysdevwuzkpjav7q8umak8nn68n5sd6xx5j7cys",
-  MULTI_SIGNATURE: false,
+  MULTI_SIGNATURE: true,
   PASS_PHRASE: [
+    "",
     ""
   ],
   RATE: {
     VOTER: 0.5,
-    SELEF: 0.3,
+    SELF: 0.3,
     POOL: 0.2
   },
-  FEE: "300000"
+  MINIMUMPAY: {
+    VOTER: 1,
+    SELF: 110,
+    POOL: 110
+  }
 }
 
 export interface REWARD {
@@ -28,12 +33,13 @@ export interface REWARD {
 }
 
 export interface VOTER {
+  id:number;
   address:string;
   reward:string;
 }
 
-export interface HISTORU {
-  address:string;
-  reward:string;
-  timestamp:bigint;
+export interface MANAGE {
+  id:number;
+  self:string;
+  pool:string;
 }

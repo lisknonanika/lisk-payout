@@ -1,7 +1,7 @@
 import mysql from 'mysql2/promise';
 import { NETWORK } from './common/constats';
 import { getMysqlConnection } from './common/mysql';
-import { updateReward } from './action/updateReward';
+import { updateReward, updateVoter, updateManage } from './action';
 
 (async() => {
   let exitCd = 0;
@@ -23,16 +23,29 @@ import { updateReward } from './action/updateReward';
       return;
     }
 
+    // update voter
+    if (!await updateVoter(mysqlConnection)) {
+      exitCd = 1;
+      return;
+    }
+
+    // update manage
+    if (!await updateManage(mysqlConnection)) {
+      exitCd = 1;
+      return;
+    }
+
   } catch (err) {
       console.info(`System error`);
       console.error(err);
       exitCd = 1;
+      
   } finally {
     if (mysqlConnection) {
       if (exitCd === 0) {
         mysqlConnection.commit();
       } else {
-        mysqlConnection.commit();
+        mysqlConnection.rollback();
       }
       await mysqlConnection.end();
     }

@@ -1,9 +1,8 @@
 import fetch from 'node-fetch';
 import mysql from 'mysql2/promise';
-// import { convertBeddowsToLSK, convertLSKToBeddows } from '@liskhq/lisk-transactions';
 import { NETWORK, API_URL, DELEGATE, REWARD } from '../common/constats';
 
-export const updateReward = async(mysqlConnection:mysql.Connection) => {
+export const updateReward = async(mysqlConnection:mysql.Connection):Promise<boolean> => {
   try {
     // Get: delegate account
     const responseAccount = await fetch(`${API_URL[NETWORK]}/accounts?username=${DELEGATE.NAME}&isDelegate=true`);
