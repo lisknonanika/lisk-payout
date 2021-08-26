@@ -1,8 +1,9 @@
 import mysql from 'mysql2/promise';
 import { convertBeddowsToLSK, convertLSKToBeddows } from '@liskhq/lisk-transactions';
+import { VOTER } from '../common/type';
+import { NETWORK, DELEGATE } from '../common/config';
 import { getMyAccount, getVotesReceived } from '../common/lisk';
 import { findReward, findVoter, updVoter } from '../common/mysql';
-import { NETWORK, DELEGATE, VOTER } from '../common/constats';
 
 export const updateVoter = async(mysqlConnection:mysql.Connection):Promise<boolean> => {
   try {

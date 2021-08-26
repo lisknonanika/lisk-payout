@@ -1,7 +1,8 @@
 import mysql from 'mysql2/promise';
 import { convertBeddowsToLSK, convertLSKToBeddows } from '@liskhq/lisk-transactions';
+import { MANAGE } from '../common/type';
+import { NETWORK, DELEGATE } from '../common/config';
 import { findReward, findManage, updManage } from '../common/mysql';
-import { NETWORK, DELEGATE, MANAGE } from '../common/constats';
 
 export const updateManage = async(mysqlConnection:mysql.Connection):Promise<boolean> => {
   try {
@@ -10,8 +11,10 @@ export const updateManage = async(mysqlConnection:mysql.Connection):Promise<bool
     // Find: reward
     const rewardRow = await findReward(mysqlConnection);
     if (!rewardRow || +convertBeddowsToLSK(rewardRow.diff) <= 0) return true;
-    const selefTarget:number = rewardRow? +convertBeddowsToLSK(rewardRow.diff) * DELEGATE.RATE.SELF: 0;
-    const poolTarget:number = rewardRow? +convertBeddowsToLSK(rewardRow.diff) * DELEGATE.RATE.POOL: 0;
+    let selefTarget:number = rewardRow? +convertBeddowsToLSK(rewardRow.diff) * DELEGATE.RATE.SELF: 0;
+    selefTarget = Math.floor(selefTarget * 100000000) / 100000000;
+    let poolTarget:number = rewardRow? +convertBeddowsToLSK(rewardRow.diff) * DELEGATE.RATE.POOL: 0;
+    poolTarget = Math.floor(poolTarget * 100000000) / 100000000;
     console.info(`[updateManage] selefTarget=${selefTarget}, poolTarget=${poolTarget}`);
 
     // Find: manage

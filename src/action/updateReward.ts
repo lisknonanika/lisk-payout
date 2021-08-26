@@ -1,7 +1,8 @@
 import mysql from 'mysql2/promise';
+import { REWARD } from '../common/type';
+import { NETWORK } from '../common/config';
 import { getMyAccount } from '../common/lisk';
 import { findReward, updReward } from '../common/mysql';
-import { NETWORK, REWARD } from '../common/constats';
 
 export const updateReward = async(mysqlConnection:mysql.Connection):Promise<boolean> => {
   try {

@@ -1,5 +1,6 @@
 import mysql from 'mysql2/promise';
-import { NETWORK, REWARD, VOTER, MANAGE } from '../common/constats';
+import { REWARD, VOTER, MANAGE } from './type';
+import { NETWORK } from './config';
 
 const connectionParams = {
   host: 'localhost',
@@ -12,10 +13,9 @@ export const getMysqlConnection = async():Promise<mysql.Connection|undefined> =>
   try {
     const connection = await mysql.createConnection(connectionParams);
     await connection.connect();
-    console.info(`mysql connect: success`);
     return connection;
+    
   } catch(err) {
-    console.error(`mysql connect: fialed`);
     console.error(err);
     return undefined;
   }

@@ -12,8 +12,7 @@ export const WS_URL:string[] = [
 export const DELEGATE = {
   NAME: "ysdev",
   ADDRESS: "lskysdevwuzkpjav7q8umak8nn68n5sd6xx5j7cys",
-  MULTI_SIGNATURE: true,
-  PASS_PHRASE: [
+  PASSPHRASE: [
     "",
     ""
   ],
@@ -26,24 +25,6 @@ export const DELEGATE = {
     VOTER: 1,
     SELF: 110,
     POOL: 110
-  }
-}
-
-export interface REWARD {
-  id:number;
-  cur:string;
-  prev:string;
-  diff:string;
-}
-
-export interface VOTER {
-  id:number;
-  address:string;
-  reward:string;
-}
-
-export interface MANAGE {
-  id:number;
-  self:string;
-  pool:string;
+  },
+  MESSAGE: ""
 }
