@@ -23,7 +23,7 @@ export const updateVoter = async(mysqlConnection:mysql.Connection):Promise<boole
 
     // Calculation: totalVotesReceived
     const selfVote = account.dpos.sentVotes.find((v:any) => { return v.delegateAddress === DELEGATE.ADDRESS });
-    const totalVotesReceived:number = +convertBeddowsToLSK(account.dpos.delegate.totalVotesReceived) - +convertBeddowsToLSK(selfVote.amount);
+    const totalVotesReceived:number = +convertBeddowsToLSK((BigInt(account.dpos.delegate.totalVotesReceived) - BigInt(selfVote.amount)).toString());
     console.info(`[updateVoter] totalVotesReceived=${totalVotesReceived}`);
     if (totalVotesReceived <= 0) return true;
 
@@ -39,7 +39,7 @@ export const updateVoter = async(mysqlConnection:mysql.Connection):Promise<boole
 
         // Update: Vorter data
         const voterData:VOTER = { id: NETWORK, address: voter.address, reward: convertLSKToBeddows(reward.toString()) };
-        if (voterRow) voterData.reward = convertLSKToBeddows((+convertBeddowsToLSK(voterRow.reward) + reward).toString());
+        if (voterRow) voterData.reward = (BigInt(voterRow.reward) + BigInt(convertLSKToBeddows(reward.toString()))).toString();
         await updVoter(mysqlConnection, voterRow !== undefined, voterData);
     }
     return true;

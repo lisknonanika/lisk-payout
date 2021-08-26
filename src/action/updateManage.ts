@@ -23,8 +23,8 @@ export const updateManage = async(mysqlConnection:mysql.Connection):Promise<bool
     // Update: Manage data
     const manageData:MANAGE = { id: NETWORK, self: "0", pool: "0" };
     if(manageRow) {
-      manageData.self = convertLSKToBeddows((+convertBeddowsToLSK(manageRow.self) + selefTarget).toString());
-      manageData.pool = convertLSKToBeddows((+convertBeddowsToLSK(manageRow.pool) + poolTarget).toString());
+      manageData.self = (BigInt(manageRow.self) + BigInt(convertLSKToBeddows(selefTarget.toString()))).toString();
+      manageData.pool = (BigInt(manageRow.pool) + BigInt(convertLSKToBeddows(poolTarget.toString()))).toString();
     } else {
       manageData.self = convertLSKToBeddows(selefTarget.toString());
       manageData.pool = convertLSKToBeddows(poolTarget.toString())

@@ -22,7 +22,7 @@ export const getVotesReceived = async():Promise<any> => {
   return (await response.json()).data;
 }
 
-export const transfer = async(client:apiClient.APIClient, recipientAddress:string) => {
+export const sendTransaction = async(client:apiClient.APIClient, transactionObject:any, assetSchema:any, nonce:number, isTrasnfer:boolean) => {
   // Get: Delegate account
   const account:Record<string, any> = await client.account.get(cryptography.getAddressFromLisk32Address(DELEGATE.ADDRESS));
   if (!account) return;
@@ -31,23 +31,7 @@ export const transfer = async(client:apiClient.APIClient, recipientAddress:strin
   const networkIdentifier = (await client.node.getNodeInfo()).networkIdentifier;
   if (!networkIdentifier) return;
 
-  // Get: Schema
-  const assetSchema = client.schemas.transactionsAssets.find((schema) => schema.moduleID === 2 && schema.assetID === 0);
-  if (!assetSchema) return;
-
-  // Set: param
-  const transferparam = {
-    moduleID: 2,
-    assetID: 0,
-    fee: BigInt(100000000),
-    senderPublicKey: cryptography.getPrivateAndPublicKeyFromPassphrase(DELEGATE.PASSPHRASE[0]).publicKey,
-    asset: {
-      amount: BigInt(100000000),
-      recipientAddress: cryptography.getAddressFromLisk32Address(recipientAddress),
-      data: DELEGATE.MESSAGE
-    }
-  }
-
+  // Set: MultisignatureKeys
   const multisignatureKeys = {
     mandatoryKeys: account.keys.mandatoryKeys,
     optionalKeys: account.keys.optionalKeys
@@ -55,15 +39,16 @@ export const transfer = async(client:apiClient.APIClient, recipientAddress:strin
 
   // Get: MinFee
   let tx:Record<string, any> = await client.transaction.create(
-    transferparam,
+    transactionObject,
     DELEGATE.PASSPHRASE[0],
     {
       includeSenderSignature: false,
       multisignatureKeys: multisignatureKeys
     }
   );
+  tx.nonce = BigInt(tx.nonce.toString()) + BigInt(nonce.toString());
   tx.fee = await client.transaction.computeMinFee(tx);
-  tx.asset.amount = tx.asset.amount - tx.fee;
+  if(isTrasnfer) tx.asset.amount = tx.asset.amount - tx.fee;
 
   // Sign: Transaction
   if (DELEGATE.PASSPHRASE.length < 2) {
@@ -88,4 +73,67 @@ export const transfer = async(client:apiClient.APIClient, recipientAddress:strin
 
   // Send: Transaction
   console.log(await client.transaction.send(tx));
+}
+
+export const transfer = async(client:apiClient.APIClient, nonce:number, recipientAddress:string, amount:string, message:string):Promise<boolean> => {
+  try {
+    // Get: Schema
+    const assetSchema = client.schemas.transactionsAssets.find((schema) => schema.moduleID === 2 && schema.assetID === 0);
+    if (!assetSchema) return false;
+
+    // Set: Param
+    const transferparam = {
+      moduleID: 2,
+      assetID: 0,
+      fee: BigInt(100000000),
+      senderPublicKey: cryptography.getPrivateAndPublicKeyFromPassphrase(DELEGATE.PASSPHRASE[0]).publicKey,
+      asset: {
+        amount: BigInt(amount),
+        recipientAddress: cryptography.getAddressFromLisk32Address(recipientAddress),
+        data: message
+      }
+    }
+
+    // Send: Transaction
+    await sendTransaction(client, transferparam, assetSchema, nonce, true);
+
+    return true;
+
+  } catch(err) {
+    console.error(err);
+    return false;
+  }
+}
+
+export const delegateVote = async(client:apiClient.APIClient, recipientAddress:string, amount:string):Promise<boolean> => {
+  try {
+    // Get: Schema
+    const assetSchema = client.schemas.transactionsAssets.find((schema) => schema.moduleID === 5 && schema.assetID === 1);
+    if (!assetSchema) return false;
+
+    // Set: param
+    const voteParam = {
+      moduleID: 5,
+      assetID: 1,
+      fee: BigInt(100000000),
+      senderPublicKey: cryptography.getPrivateAndPublicKeyFromPassphrase(DELEGATE.PASSPHRASE[0]).publicKey,
+      asset: {
+        votes :[
+          {
+            delegateAddress: cryptography.getAddressFromLisk32Address(recipientAddress),
+            amount: BigInt(amount)
+          }
+        ]
+      }
+    }
+
+    // Send: Transaction
+    await sendTransaction(client, voteParam, assetSchema, 0, false);
+
+    return true;
+
+  } catch(err) {
+    console.error(err);
+    return false;
+  }
 }

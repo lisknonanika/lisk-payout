@@ -12,6 +12,7 @@ export const WS_URL:string[] = [
 export const DELEGATE = {
   NAME: "ysdev",
   ADDRESS: "lskysdevwuzkpjav7q8umak8nn68n5sd6xx5j7cys",
+  POOLADDRESS: "lskjp2fudfamk2tybjn9ohjp3z6wdecjmb8d8bds4",
   PASSPHRASE: [
     "",
     ""
