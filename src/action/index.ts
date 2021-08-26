@@ -4,6 +4,7 @@ import { updateManage } from './updateManage';
 import { sendReward } from './sendReward';
 import { sendPool } from './sendPool';
 import { selfVote } from './selfVote';
+import { outputData } from './outputData';
 
 export {
   updateReward,
@@ -11,5 +12,6 @@ export {
   updateManage,
   sendReward,
   sendPool,
-  selfVote
+  selfVote,
+  outputData
 }

@@ -1,13 +1,20 @@
 import { CronJob } from 'cron'
-import { update, send } from './job';
+import { update, send, manage } from './job';
+import { CRON } from './common/config'
 
-const sendJob:CronJob = new CronJob('0 0 1 * * 6', async() => await send());
-const updateJob:CronJob = new CronJob('0 0 */6 * * 1-5', async() => await update());
+const updateJob:CronJob = new CronJob(CRON.UPDATE, async() => await update());
+const sendJob:CronJob = new CronJob(CRON.SEND, async() => await send());
+const manageJob:CronJob = new CronJob(CRON.MANAGE, async() => await manage());
 
 (async() => {
   try {
-    if (!sendJob.running) sendJob.start();
+    // Initialize
+    await update();
+
+    // Job
     if (!updateJob.running) updateJob.start();
+    if (!sendJob.running) sendJob.start();
+    if (!manageJob.running) manageJob.start();
 
   } catch(err) {
     console.error(err);

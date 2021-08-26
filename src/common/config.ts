@@ -13,6 +13,7 @@ export const DELEGATE = {
   NAME: "ysdev",
   ADDRESS: "lskysdevwuzkpjav7q8umak8nn68n5sd6xx5j7cys",
   POOLADDRESS: "lskjp2fudfamk2tybjn9ohjp3z6wdecjmb8d8bds4",
+  MULTISIG: true,
   PASSPHRASE: [
     "",
     ""
@@ -28,4 +29,15 @@ export const DELEGATE = {
     POOL: 110
   },
   MESSAGE: ""
+}
+
+export const CRON = {
+  UPDATE: "0 0 */6 * * 1-5",
+  SEND: "0 0 1 * * 6",
+  MANAGE: "0 0 13 * * 6"
+}
+
+export const OUTPUT = {
+  DIR: "../output/",
+  FILE: "lisk-payout-testnet.json"
 }

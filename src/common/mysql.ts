@@ -42,6 +42,13 @@ export const findVoter = async(connection:mysql.Connection, address:string):Prom
   return rows.length > 0? rows[0]: undefined;
 }
 
+export const findVoters = async(connection:mysql.Connection):Promise<mysql.RowDataPacket[]|undefined> => {
+  const query:string = "SELECT * FROM `voter` WHERE `id` = ?";
+  const params:any[] = [NETWORK];
+  const [rows]:[mysql.RowDataPacket[], mysql.FieldPacket[]] = await connection.query(query, params);
+  return rows.length > 0? rows: undefined;
+}
+
 export const findRewardTargetVoters = async(connection:mysql.Connection):Promise<mysql.RowDataPacket[]|undefined> => {
   const query:string = "SELECT * FROM `voter` WHERE `id` = ? AND CAST(`reward` AS UNSIGNED) >= ?";
   const params:any[] = [NETWORK, BigInt(convertLSKToBeddows(DELEGATE.MINIMUMPAY.VOTER.toString()))];

@@ -51,14 +51,7 @@ export const sendTransaction = async(client:apiClient.APIClient, transactionObje
   if(isTrasnfer) tx.asset.amount = tx.asset.amount - tx.fee;
 
   // Sign: Transaction
-  if (DELEGATE.PASSPHRASE.length < 2) {
-    tx = transactions.signTransaction(
-      assetSchema.schema,
-      tx,
-      Buffer.from(networkIdentifier, "hex"),
-      DELEGATE.PASSPHRASE[0]
-    )
-  } else {
+  if (DELEGATE.MULTISIG) {
     for (const passphrae of DELEGATE.PASSPHRASE) {
       tx = transactions.signMultiSignatureTransaction(
         assetSchema.schema,
@@ -69,6 +62,13 @@ export const sendTransaction = async(client:apiClient.APIClient, transactionObje
         false
       )
     }
+  } else {
+    tx = transactions.signTransaction(
+      assetSchema.schema,
+      tx,
+      Buffer.from(networkIdentifier, "hex"),
+      DELEGATE.PASSPHRASE[0]
+    )
   }
 
   // Send: Transaction

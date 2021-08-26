@@ -16,3 +16,19 @@ export interface MANAGE {
   self:string;
   pool:string;
 }
+
+export interface OUTPUTDATA {
+  reward: {
+    cur:string;
+    prev:string;
+    diff:string;
+  },
+  manage: {
+    self:string;
+    pool:string;
+  },
+  voter: Array<{
+    address:string;
+    reward:string;
+  }>
+}
