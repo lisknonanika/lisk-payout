@@ -1,6 +1,6 @@
 import mysql from 'mysql2/promise';
 import { apiClient } from '@liskhq/lisk-client';
-import { NETWORK } from '../common/config';
+import { NETWORK, DELEGATE } from '../common/config';
 import { getLiskClient } from '../common/lisk';
 import { getMysqlConnection } from '../common/mysql';
 import { sendPool, selfVote } from '../action';
@@ -11,6 +11,7 @@ export const manage = async() => {
   let mysqlConnection:mysql.Connection|undefined = undefined;
   try {
     console.info(`[lisk-payout] Manage Start: NETWORK=${NETWORK}`);
+    if (DELEGATE.RATE.POOL <= 0 && DELEGATE.RATE.SELF <= 0) return;
 
     // get liskClient
     liskClient = await getLiskClient();
@@ -28,17 +29,21 @@ export const manage = async() => {
     await mysqlConnection.beginTransaction();
 
     // send pool
-    await new Promise(resolve => setTimeout(resolve, 60000));
-    if (!await sendPool(liskClient, mysqlConnection)) {
-      isError = true;
-      return;
+    if (DELEGATE.RATE.POOL > 0) {
+      await new Promise(resolve => setTimeout(resolve, 60000));
+      if (!await sendPool(liskClient, mysqlConnection)) {
+        isError = true;
+        return;
+      }
     }
 
     // self vote
-    await new Promise(resolve => setTimeout(resolve, 60000));
-    if (!await selfVote(liskClient, mysqlConnection)) {
-      isError = true;
-      return;
+    if (DELEGATE.RATE.SELF > 0) {
+      await new Promise(resolve => setTimeout(resolve, 60000));
+      if (!await selfVote(liskClient, mysqlConnection)) {
+        isError = true;
+        return;
+      }
     }
 
   } catch (err) {

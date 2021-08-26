@@ -1,6 +1,6 @@
 import mysql from 'mysql2/promise';
 import { apiClient } from '@liskhq/lisk-client';
-import { NETWORK } from '../common/config';
+import { NETWORK, DELEGATE } from '../common/config';
 import { getLiskClient } from '../common/lisk';
 import { getMysqlConnection } from '../common/mysql';
 import { sendReward } from '../action';
@@ -11,6 +11,7 @@ export const send = async() => {
   let mysqlConnection:mysql.Connection|undefined = undefined;
   try {
     console.info(`[lisk-payout] Send Start: NETWORK=${NETWORK}`);
+    if (DELEGATE.RATE.VOTER <= 0) return;
 
     // get liskClient
     liskClient = await getLiskClient();
