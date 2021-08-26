@@ -1,0 +1,4 @@
+{
+  "name": "lisk-payout",
+  "script": "npm run app"
+}
