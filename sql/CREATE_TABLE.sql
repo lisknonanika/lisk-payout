@@ -1,5 +1,5 @@
 CREATE TABLE payout.reward (
-  id int NOT NULL PRIMARY KEY,
+  id int NOT NULL,
   cur varchar(45) NOT NULL,
   prev varchar(45) NOT NULL,
   diff varchar(45) NOT NULL,
