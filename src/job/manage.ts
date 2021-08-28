@@ -52,12 +52,12 @@ export const manage = async() => {
     console.error(err);
     
   } finally {
-    if (liskClient) liskClient.disconnect();
+    if (liskClient) await liskClient.disconnect();
     if (mysqlConnection) {
       if (isError) {
-        mysqlConnection.rollback();
+        await mysqlConnection.rollback();
       } else {
-        mysqlConnection.commit();
+        await mysqlConnection.commit();
       }
       await mysqlConnection.end();
     }
