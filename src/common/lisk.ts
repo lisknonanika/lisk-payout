@@ -18,8 +18,17 @@ export const getMyAccount = async():Promise<any> => {
 }
 
 export const getVotesReceived = async():Promise<any> => {
-  const response = await fetch(`${API_URL[NETWORK]}/votes_received?username=${DELEGATE.NAME}&aggregate=true`);
-  return (await response.json()).data;
+  const data = { votes: new Array()}
+  return await getVotesReceivedNext(data, 0);
+}
+
+const getVotesReceivedNext = async(data:{ votes: Array<any>}, offset:number):Promise<any> => {
+  const response = await fetch(`${API_URL[NETWORK]}/votes_received?username=${DELEGATE.NAME}&aggregate=true&limit=100&offset=${offset}`);
+  const json = await response.json();
+  if (!json.data.votes) return data;
+  for (const vote of json.data.votes) data.votes.push(vote);
+  if (data.votes.length < json.meta.total) await getVotesReceivedNext(data, offset+100);
+  return data;
 }
 
 export const sendTransaction = async(client:apiClient.APIClient, transactionObject:any, assetSchema:any, nonce:number, isTrasnfer:boolean) => {
