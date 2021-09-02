@@ -11,10 +11,10 @@ export const updateManage = async(mysqlConnection:mysql.Connection):Promise<bool
     // Find: reward
     const rewardRow = await findReward(mysqlConnection);
     if (!rewardRow || +convertBeddowsToLSK(rewardRow.diff) <= 0) return true;
-    let selefTarget:number = rewardRow? +convertBeddowsToLSK(rewardRow.diff) * DELEGATE.RATE.SELF: 0;
-    selefTarget = Math.floor(selefTarget * 100000000) / 100000000;
-    let poolTarget:number = rewardRow? +convertBeddowsToLSK(rewardRow.diff) * DELEGATE.RATE.POOL: 0;
-    poolTarget = Math.floor(poolTarget * 100000000) / 100000000;
+    let selefTarget:number = rewardRow && DELEGATE.RATE.SELF > 0? +convertBeddowsToLSK(rewardRow.diff) * DELEGATE.RATE.SELF: 0;
+    if (selefTarget > 0) selefTarget = Math.floor(selefTarget * 100000000) / 100000000;
+    let poolTarget:number = rewardRow && DELEGATE.RATE.POOL > 0? +convertBeddowsToLSK(rewardRow.diff) * DELEGATE.RATE.POOL: 0;
+    if (poolTarget > 0) poolTarget = Math.floor(poolTarget * 100000000) / 100000000;
     console.info(`[updateManage] selefTarget=${selefTarget}, poolTarget=${poolTarget}`);
 
     // Find: manage
@@ -23,11 +23,11 @@ export const updateManage = async(mysqlConnection:mysql.Connection):Promise<bool
     // Update: Manage data
     const manageData:MANAGE = { id: NETWORK, self: "0", pool: "0" };
     if(manageRow) {
-      manageData.self = (BigInt(manageRow.self) + BigInt(convertLSKToBeddows(selefTarget.toString()))).toString();
-      manageData.pool = (BigInt(manageRow.pool) + BigInt(convertLSKToBeddows(poolTarget.toString()))).toString();
+      manageData.self = selefTarget > 0? (BigInt(manageRow.self) + BigInt(convertLSKToBeddows(selefTarget.toString()))).toString(): manageRow.self;
+      manageData.pool = poolTarget > 0? (BigInt(manageRow.pool) + BigInt(convertLSKToBeddows(poolTarget.toString()))).toString(): manageData.pool;
     } else {
-      manageData.self = convertLSKToBeddows(selefTarget.toString());
-      manageData.pool = convertLSKToBeddows(poolTarget.toString())
+      manageData.self = selefTarget > 0? convertLSKToBeddows(selefTarget.toString()): "0";
+      manageData.pool = poolTarget > 0? convertLSKToBeddows(poolTarget.toString()): "0";
     }
     await updManage(mysqlConnection, manageRow !== undefined, manageData);
     return true;
