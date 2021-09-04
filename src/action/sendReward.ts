@@ -26,6 +26,9 @@ export const sendReward = async(liskClient:apiClient.APIClient, mysqlConnection:
 
       // Add nonce
       nonce+=1;
+
+      // sleep 1 sec.
+      await new Promise(resolve => setTimeout(resolve, 1000));
     }
     return true;
 
