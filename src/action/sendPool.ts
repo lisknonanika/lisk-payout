@@ -1,7 +1,7 @@
 import mysql from 'mysql2/promise';
 import { apiClient } from '@liskhq/lisk-client';
 import { convertBeddowsToLSK, convertLSKToBeddows } from '@liskhq/lisk-transactions';
-import { transfer } from '../common/lisk';
+import { getMyAccount, transfer } from '../common/lisk';
 import { findManage, updManage } from '../common/mysql';
 import { DELEGATE } from '../common/config';
 
@@ -18,8 +18,12 @@ export const sendPool = async(liskClient:apiClient.APIClient, mysqlConnection:my
     if (pool < DELEGATE.MINIMUMPAY.POOL) return true;
     console.info(`[sendPool] amount=${manageRow.pool}`);
 
+    // Get: delegate account
+    const account = await getMyAccount();
+    const nonce:string = account.sequence.nonce;
+
     // Transfer: pool
-    if (!await transfer(liskClient, 0, DELEGATE.POOLADDRESS, manageRow.pool, "")) {
+    if (!await transfer(liskClient, nonce, DELEGATE.POOLADDRESS, manageRow.pool, "")) {
       console.error(`[sendPool] transfer: failed`);
       return false;
     }

@@ -31,7 +31,7 @@ const getVotesReceivedNext = async(data:{ votes: Array<any>}, offset:number):Pro
   return data;
 }
 
-export const sendTransaction = async(client:apiClient.APIClient, transactionObject:any, assetSchema:any, nonce:number, isTrasnfer:boolean) => {
+export const sendTransaction = async(client:apiClient.APIClient, transactionObject:any, assetSchema:any, isTrasnfer:boolean) => {
   // Get: Delegate account
   const account:Record<string, any> = await client.account.get(cryptography.getAddressFromLisk32Address(DELEGATE.ADDRESS));
   if (!account) return;
@@ -55,7 +55,6 @@ export const sendTransaction = async(client:apiClient.APIClient, transactionObje
       multisignatureKeys: multisignatureKeys
     }
   );
-  tx.nonce = BigInt(tx.nonce.toString()) + BigInt(nonce.toString());
   tx.fee = await client.transaction.computeMinFee(tx);
   if(isTrasnfer) tx.asset.amount = tx.asset.amount - tx.fee;
 
@@ -84,7 +83,7 @@ export const sendTransaction = async(client:apiClient.APIClient, transactionObje
   console.log(await client.transaction.send(tx));
 }
 
-export const transfer = async(client:apiClient.APIClient, nonce:number, recipientAddress:string, amount:string, message:string):Promise<boolean> => {
+export const transfer = async(client:apiClient.APIClient, nonce:string, recipientAddress:string, amount:string, message:string):Promise<boolean> => {
   try {
     // Get: Schema
     const assetSchema = client.schemas.transactionsAssets.find((schema) => schema.moduleID === 2 && schema.assetID === 0);
@@ -94,6 +93,7 @@ export const transfer = async(client:apiClient.APIClient, nonce:number, recipien
     const transferparam = {
       moduleID: 2,
       assetID: 0,
+      nonce: BigInt(nonce),
       fee: BigInt(100000000),
       senderPublicKey: cryptography.getPrivateAndPublicKeyFromPassphrase(DELEGATE.PASSPHRASE[0]).publicKey,
       asset: {
@@ -104,7 +104,7 @@ export const transfer = async(client:apiClient.APIClient, nonce:number, recipien
     }
 
     // Send: Transaction
-    await sendTransaction(client, transferparam, assetSchema, nonce, true);
+    await sendTransaction(client, transferparam, assetSchema, true);
 
     return true;
 
@@ -114,7 +114,7 @@ export const transfer = async(client:apiClient.APIClient, nonce:number, recipien
   }
 }
 
-export const delegateVote = async(client:apiClient.APIClient, recipientAddress:string, amount:string):Promise<boolean> => {
+export const delegateVote = async(client:apiClient.APIClient, nonce:string, recipientAddress:string, amount:string):Promise<boolean> => {
   try {
     // Get: Schema
     const assetSchema = client.schemas.transactionsAssets.find((schema) => schema.moduleID === 5 && schema.assetID === 1);
@@ -124,6 +124,7 @@ export const delegateVote = async(client:apiClient.APIClient, recipientAddress:s
     const voteParam = {
       moduleID: 5,
       assetID: 1,
+      nonce: BigInt(nonce),
       fee: BigInt(100000000),
       senderPublicKey: cryptography.getPrivateAndPublicKeyFromPassphrase(DELEGATE.PASSPHRASE[0]).publicKey,
       asset: {
@@ -137,7 +138,7 @@ export const delegateVote = async(client:apiClient.APIClient, recipientAddress:s
     }
 
     // Send: Transaction
-    await sendTransaction(client, voteParam, assetSchema, 0, false);
+    await sendTransaction(client, voteParam, assetSchema, false);
 
     return true;
 

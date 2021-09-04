@@ -1,7 +1,7 @@
 import mysql from 'mysql2/promise';
 import { apiClient } from '@liskhq/lisk-client';
 import { convertBeddowsToLSK, convertLSKToBeddows } from '@liskhq/lisk-transactions';
-import { delegateVote } from '../common/lisk';
+import { getMyAccount, delegateVote } from '../common/lisk';
 import { findManage, updManage } from '../common/mysql';
 import { DELEGATE } from '../common/config';
 
@@ -19,8 +19,12 @@ export const selfVote = async(liskClient:apiClient.APIClient, mysqlConnection:my
     const amount = Math.floor(self * 0.1) / 0.1;
     console.info(`[selfVote] amount=${amount}`);
 
+    // Get: delegate account
+    const account = await getMyAccount();
+    let nonce:string = account.sequence.nonce;
+
     // Vote
-    if(!await delegateVote(liskClient, DELEGATE.ADDRESS, convertLSKToBeddows(amount.toString()))) {
+    if(!await delegateVote(liskClient, nonce, DELEGATE.ADDRESS, convertLSKToBeddows(amount.toString()))) {
       console.error(`[selfVote] delegate vote: failed`);
       return false;
     }
