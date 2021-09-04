@@ -16,21 +16,16 @@ export const sendPool = async(liskClient:apiClient.APIClient, mysqlConnection:my
     // Floor
     const pool:number = +convertBeddowsToLSK(manageRow.pool);
     if (pool < DELEGATE.MINIMUMPAY.POOL) return true;
-    const amount = Math.floor(pool * 0.1) / 0.1;
-    console.info(`[sendPool] amount=${amount}`);
+    console.info(`[sendPool] amount=${manageRow.pool}`);
 
     // Transfer: pool
-    if (!await transfer(liskClient, 0, DELEGATE.POOLADDRESS, convertLSKToBeddows(amount.toString()), "")) {
+    if (!await transfer(liskClient, 0, DELEGATE.POOLADDRESS, manageRow.pool, "")) {
       console.error(`[sendPool] transfer: failed`);
       return false;
     }
 
     // Update: manage
-    await updManage(mysqlConnection, true, {
-      id: manageRow.id,
-      self: manageRow.self,
-      pool: (BigInt(convertLSKToBeddows(pool.toString())) - BigInt(convertLSKToBeddows(amount.toString()))).toString()
-    });
+    await updManage(mysqlConnection, true, { id: manageRow.id, self: manageRow.self, pool: "0" });
 
     return true;
 
