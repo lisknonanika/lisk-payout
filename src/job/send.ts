@@ -1,9 +1,10 @@
 import mysql from 'mysql2/promise';
+import path from 'path';
 import { apiClient } from '@liskhq/lisk-client';
-import { NETWORK, DELEGATE } from '../common/config';
+import { NETWORK, DELEGATE, OUTPUT } from '../common/config';
 import { getLiskClient } from '../common/lisk';
 import { getMysqlConnection } from '../common/mysql';
-import { sendReward } from '../action';
+import { sendReward, outputData } from '../action';
 
 export const send = async() => {
   let isError = false;
@@ -27,6 +28,12 @@ export const send = async() => {
       return;
     }
     await mysqlConnection.beginTransaction();
+
+    try {
+      await outputData(mysqlConnection, path.join(OUTPUT.DIR,  `beforeSend_${OUTPUT.FILE}`));
+    } catch (err) {
+      // none
+    }
 
     // send reward
     if (!await sendReward(liskClient, mysqlConnection)) {

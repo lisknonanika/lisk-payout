@@ -1,11 +1,10 @@
 import mysql from 'mysql2/promise';
 import fs from 'fs';
-import path from 'path';
 import { OUTPUTDATA } from '../common/type';
 import { OUTPUT } from '../common/config';
 import { findReward, findVoters, findManage } from '../common/mysql';
 
-export const outputData = async(mysqlConnection:mysql.Connection):Promise<boolean> => {
+export const outputData = async(mysqlConnection:mysql.Connection, filePath:string):Promise<boolean> => {
   try {
     console.info(`[outputData] Start`);
 
@@ -40,7 +39,7 @@ export const outputData = async(mysqlConnection:mysql.Connection):Promise<boolea
     }
 
     fs.mkdirSync(OUTPUT.DIR, { recursive: true });
-    fs.writeFileSync(path.join(OUTPUT.DIR, OUTPUT.FILE), JSON.stringify(data, null, 2));
+    fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
 
     return true;
 

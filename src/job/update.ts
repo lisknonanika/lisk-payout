@@ -1,5 +1,6 @@
 import mysql from 'mysql2/promise';
-import { NETWORK, DELEGATE } from '../common/config';
+import path from 'path';
+import { NETWORK, DELEGATE, OUTPUT } from '../common/config';
 import { getMysqlConnection } from '../common/mysql';
 import { updateReward, updateVoter, updateManage, outputData } from '../action';
 
@@ -50,7 +51,7 @@ export const update = async() => {
         await mysqlConnection.rollback();
       } else {
         await mysqlConnection.commit();
-        await outputData(mysqlConnection);
+        await outputData(mysqlConnection, path.join(OUTPUT.DIR, OUTPUT.FILE));
       }
       await mysqlConnection.end();
     }
