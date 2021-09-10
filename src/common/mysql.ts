@@ -1,18 +1,11 @@
 import mysql from 'mysql2/promise';
 import { convertLSKToBeddows } from '@liskhq/lisk-transactions'
 import { REWARD, VOTER, MANAGE } from './type';
-import { NETWORK, DELEGATE } from './config';
-
-const connectionParams = {
-  host: 'localhost',
-  user: 'root',
-  password: 'password',
-  database: 'payout'
-};
+import { NETWORK, DELEGATE, DB_PARAMS } from './config';
 
 export const getMysqlConnection = async():Promise<mysql.Connection|undefined> => {
   try {
-    const connection = await mysql.createConnection(connectionParams);
+    const connection = await mysql.createConnection(DB_PARAMS);
     await connection.connect();
     return connection;
     

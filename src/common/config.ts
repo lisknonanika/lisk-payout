@@ -9,6 +9,13 @@ export const WS_URL:string[] = [
   "wss://testnet-service.ysdev.work/ws",
 ];
 
+export const DB_PARAMS = {
+  host: 'localhost',
+  user: 'root',
+  password: 'password',
+  database: 'payout'
+}
+
 export const DELEGATE = {
   NAME: "ysdev",
   ADDRESS: "lskysdevwuzkpjav7q8umak8nn68n5sd6xx5j7cys",
