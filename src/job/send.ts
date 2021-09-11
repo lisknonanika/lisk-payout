@@ -53,6 +53,7 @@ export const send = async() => {
         await mysqlConnection.rollback();
       } else {
         await mysqlConnection.commit();
+        await outputData(mysqlConnection, path.join(OUTPUT.DIR, OUTPUT.FILE));
       }
       await mysqlConnection.end();
     }

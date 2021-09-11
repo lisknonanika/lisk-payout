@@ -15,8 +15,9 @@ export const updateReward = async(mysqlConnection:mysql.Connection):Promise<bool
     const rewardRow = await findReward(mysqlConnection);
 
     // Initial setting: Reward data
-    const rewardData:REWARD = { id: NETWORK, cur: account.dpos.delegate.rewards, prev: "0", diff: "0" };
-    rewardData.prev = rewardRow? rewardRow.cur: account.dpos.delegate.rewards;
+    const rewardData:REWARD = { id: NETWORK, cur: account.dpos.delegate.rewards, prev: account.dpos.delegate.rewards, diff: "0" };
+    if (rewardRow) rewardData.prev = rewardRow.cur;
+    if (BigInt(rewardData.cur) < BigInt(rewardData.prev)) rewardData.cur = rewardData.prev;
     rewardData.diff = (BigInt(rewardData.cur) - BigInt(rewardData.prev)).toString();
     console.info(`[updateReward] cur=${rewardData.cur}, prev=${rewardData.prev}, diff=${rewardData.diff}`);
 
