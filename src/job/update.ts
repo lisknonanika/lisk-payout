@@ -33,7 +33,7 @@ export const update = async() => {
     }
 
     // update manage
-    if (DELEGATE.RATE.POOL > 0 || DELEGATE.RATE.SELF >= 0) {
+    if (DELEGATE.RATE.POOL > 0 || DELEGATE.RATE.SELF > 0) {
       if (!await updateManage(mysqlConnection)) {
         isError = true;
         return;
