@@ -17,6 +17,11 @@ export const getMyAccount = async():Promise<any> => {
   return (await response.json()).data[0];
 }
 
+export const getForgedBlocks = async():Promise<any> => {
+  const response = await fetch(`${API_URL[NETWORK]}/blocks?generatorUsername=${DELEGATE.NAME}&limit=100&offset=0`);
+  return (await response.json()).data;
+}
+
 export const getVotesReceived = async():Promise<any> => {
   const data = { votes: new Array()}
   return await getVotesReceivedNext(data, 0);

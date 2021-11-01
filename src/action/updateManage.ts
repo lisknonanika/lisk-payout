@@ -10,10 +10,10 @@ export const updateManage = async(mysqlConnection:mysql.Connection):Promise<bool
 
     // Find: reward
     const rewardRow = await findReward(mysqlConnection);
-    if (!rewardRow || +convertBeddowsToLSK(rewardRow.diff) <= 0) return true;
-    let selefTarget:number = rewardRow && DELEGATE.RATE.SELF > 0? +convertBeddowsToLSK(rewardRow.diff) * DELEGATE.RATE.SELF: 0;
+    if (!rewardRow || +convertBeddowsToLSK(rewardRow.forge) <= 0) return true;
+    let selefTarget:number = rewardRow && DELEGATE.RATE.SELF > 0? +convertBeddowsToLSK(rewardRow.forge) * DELEGATE.RATE.SELF: 0;
     if (selefTarget > 0) selefTarget = Math.floor(selefTarget * 100000000) / 100000000;
-    let poolTarget:number = rewardRow && DELEGATE.RATE.POOL > 0? +convertBeddowsToLSK(rewardRow.diff) * DELEGATE.RATE.POOL: 0;
+    let poolTarget:number = rewardRow && DELEGATE.RATE.POOL > 0? +convertBeddowsToLSK(rewardRow.forge) * DELEGATE.RATE.POOL: 0;
     if (poolTarget > 0) poolTarget = Math.floor(poolTarget * 100000000) / 100000000;
     console.info(`[updateManage] selefTarget=${selefTarget}, poolTarget=${poolTarget}`);
 

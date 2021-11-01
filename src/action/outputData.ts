@@ -9,7 +9,7 @@ export const outputData = async(mysqlConnection:mysql.Connection, filePath:strin
     console.info(`[outputData] Start`);
 
     const data:OUTPUTDATA = {
-      reward: { cur: "", prev: "", diff: "" },
+      reward: { cur: 0, prev: 0, forge: "" },
       manage: { self: "", pool: "" },
       voter: new Array()
     };
@@ -19,7 +19,7 @@ export const outputData = async(mysqlConnection:mysql.Connection, filePath:strin
     if (rewardRow) {
       data.reward.cur = rewardRow.cur;
       data.reward.prev = rewardRow.prev;
-      data.reward.diff = rewardRow.diff;
+      data.reward.forge = rewardRow.forge;
     }
 
     // Get votes_received

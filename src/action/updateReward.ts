@@ -1,25 +1,31 @@
 import mysql from 'mysql2/promise';
 import { REWARD } from '../common/type';
 import { NETWORK } from '../common/config';
-import { getMyAccount } from '../common/lisk';
+import { getForgedBlocks } from '../common/lisk';
 import { findReward, updReward } from '../common/mysql';
 
 export const updateReward = async(mysqlConnection:mysql.Connection):Promise<boolean> => {
   try {
     console.info(`[updateReward] Start`);
 
-    // Get: delegate account
-    const account = await getMyAccount();
+    // Get: forged blocks
+    const blocks = await getForgedBlocks();
+    const height = blocks[0].height;
 
     // Find: reward
     const rewardRow = await findReward(mysqlConnection);
 
     // Initial setting: Reward data
-    const rewardData:REWARD = { id: NETWORK, cur: account.dpos.delegate.rewards, prev: account.dpos.delegate.rewards, diff: "0" };
+    const rewardData:REWARD = { id: NETWORK, cur: height, prev: height, forge: "0" };
     if (rewardRow) rewardData.prev = rewardRow.cur;
-    if (BigInt(rewardData.cur) < BigInt(rewardData.prev)) rewardData.cur = rewardData.prev;
-    rewardData.diff = (BigInt(rewardData.cur) - BigInt(rewardData.prev)).toString();
-    console.info(`[updateReward] cur=${rewardData.cur}, prev=${rewardData.prev}, diff=${rewardData.diff}`);
+    if (rewardData.cur < rewardData.prev) rewardData.cur = rewardData.prev;
+
+    rewardData.forge = "0";
+    for (const block of blocks) {
+      if (block === rewardData.prev) break;
+      rewardData.forge = (BigInt(rewardData.forge) + BigInt(block.totalForged)).toString();
+    }
+    console.info(`[updateReward] cur=${rewardData.cur}, prev=${rewardData.prev}, forge=${rewardData.forge}`);
 
     // Update: Reward data
     await updReward(mysqlConnection, rewardRow !== undefined, rewardData);

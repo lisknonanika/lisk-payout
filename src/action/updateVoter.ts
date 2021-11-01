@@ -11,8 +11,8 @@ export const updateVoter = async(mysqlConnection:mysql.Connection):Promise<boole
 
     // Find: reward
     const rewardRow = await findReward(mysqlConnection);
-    if (!rewardRow || +convertBeddowsToLSK(rewardRow.diff) <= 0) return true;
-    const rewardTarget:number = rewardRow? +convertBeddowsToLSK(rewardRow.diff) * DELEGATE.RATE.VOTER: 0;
+    if (!rewardRow || +convertBeddowsToLSK(rewardRow.forge) <= 0) return true;
+    const rewardTarget:number = rewardRow? +convertBeddowsToLSK(rewardRow.forge) * DELEGATE.RATE.VOTER: 0;
     console.info(`[updateVoter] rewardTarget=${rewardTarget}`);
 
     // Get: delegate account

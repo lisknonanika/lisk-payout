@@ -1,8 +1,8 @@
 export interface REWARD {
   id:number;
-  cur:string;
-  prev:string;
-  diff:string;
+  cur:number;
+  prev:number;
+  forge:string;
 }
 
 export interface VOTER {
@@ -19,9 +19,9 @@ export interface MANAGE {
 
 export interface OUTPUTDATA {
   reward: {
-    cur:string;
-    prev:string;
-    diff:string;
+    cur:number;
+    prev:number;
+    forge:string;
   },
   manage: {
     self:string;
