@@ -10,7 +10,12 @@ export const updateReward = async(mysqlConnection:mysql.Connection):Promise<bool
 
     // Get: forged blocks
     const blocks = await getForgedBlocks();
-    const height = blocks[0].height;
+    try {
+      const height = blocks[0].height;
+    } catch(err) {
+      console.info(`[updateReward] forged blocks not found`);
+      return false;
+    }
 
     // Find: reward
     const rewardRow = await findReward(mysqlConnection);
