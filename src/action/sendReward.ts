@@ -1,6 +1,6 @@
 import mysql from 'mysql2/promise';
 import { apiClient } from '@liskhq/lisk-client';
-import { getMyAccount, transfer } from '../common/lisk';
+import { getMyAccount, getTransferTransaction, transfer } from '../common/lisk';
 import { findRewardTargetVoters, updVoter } from '../common/mysql';
 import { DELEGATE } from '../common/config';
 
@@ -14,21 +14,34 @@ export const sendReward = async(liskClient:apiClient.APIClient, mysqlConnection:
 
     // Get: delegate account
     const account = await getMyAccount();
-    let nonce:string = account.sequence.nonce;
+    const nonce:string = account.sequence.nonce;
+    let newNonce:string = nonce;
 
-    // Main
+    // Main 1
     for (const voter of voterRows) {
       // Transfer: reward
-      if (!await transfer(liskClient, nonce, voter.address, voter.reward, DELEGATE.MESSAGE)) {
+      if (!await transfer(liskClient, newNonce, voter.address, voter.reward, DELEGATE.MESSAGE)) {
         console.error(`[sendReward] transfer failed: address=${voter.address}, reward=${voter.reward}`);
         continue;
       }
 
+      // Add newNonce
+      newNonce = (BigInt(newNonce) + BigInt(1)).toString();
+      
+      // sleep 1 sec.
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+      
+    // sleep 30 sec.
+    await new Promise(resolve => setTimeout(resolve, 30000));
+
+    // Main 2
+    for (const voter of voterRows) {
+      const data = await getTransferTransaction(DELEGATE.ADDRESS, voter.address);
+      if (!data || BigInt(nonce) > BigInt(data[0].nonce) || BigInt(newNonce) <= BigInt(data[0].nonce)) continue;
+
       // Update: voter
       await updVoter(mysqlConnection, true, { id: voter.id, address: voter.address, reward: "0" });
-
-      // Add nonce
-      nonce = (BigInt(nonce) + BigInt(1)).toString();
       
       // sleep 1 sec.
       await new Promise(resolve => setTimeout(resolve, 1000));

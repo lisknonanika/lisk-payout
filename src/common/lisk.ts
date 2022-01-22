@@ -17,6 +17,11 @@ export const getMyAccount = async():Promise<any> => {
   return (await response.json()).data[0];
 }
 
+export const getTransferTransaction = async(sender:string, recipient:string):Promise<any> => {
+  const response = await fetch(`${API_URL[NETWORK]}/transactions?senderAddress=${sender}&recipientAddress=${recipient}&limit=1&offset=0`);
+  return (await response.json()).data;
+}
+
 export const getForgedBlocks = async():Promise<any> => {
   const response = await fetch(`${API_URL[NETWORK]}/blocks?generatorUsername=${DELEGATE.NAME}&limit=100&offset=0`);
   return (await response.json()).data;
