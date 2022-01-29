@@ -28,7 +28,7 @@ export const updateReward = async(mysqlConnection:mysql.Connection):Promise<bool
     if (rewardData.cur > rewardData.prev) {
       for (const block of blocks) {
         if (block.height === rewardData.prev) break;
-        rewardData.forge = (BigInt(rewardData.forge) + BigInt(block.totalForged)).toString();
+        rewardData.forge = (BigInt(rewardData.forge) + BigInt(block.reward)).toString();
       }
     }
     console.info(`[updateReward] cur=${rewardData.cur}, prev=${rewardData.prev}, forge=${rewardData.forge}`);
