@@ -8,8 +8,12 @@ export const updateReward = async(mysqlConnection:mysql.Connection):Promise<bool
   try {
     console.info(`[updateReward] Start`);
 
+    // Find: reward
+    const rewardRow = await findReward(mysqlConnection);
+
     // Get: forged blocks
-    const blocks = await getForgedBlocks();
+    let curHeight = rewardRow? rewardRow.cur: 0;
+    const blocks = await getForgedBlocks(curHeight);
     let height = 0;
     try {
       height = blocks[0].height;
@@ -17,9 +21,6 @@ export const updateReward = async(mysqlConnection:mysql.Connection):Promise<bool
       console.info(`[updateReward] forged blocks not found`);
       return false;
     }
-
-    // Find: reward
-    const rewardRow = await findReward(mysqlConnection);
 
     // Initial setting: Reward data
     const rewardData:REWARD = { id: NETWORK, cur: height, prev: height, forge: "0" };
