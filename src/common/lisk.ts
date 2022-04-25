@@ -64,12 +64,6 @@ export const sendTransaction = async(tx:any, assetSchema:any, isTrasnfer:boolean
   const networkIdentifier = await getNetworkId();
   if (!networkIdentifier) return;
 
-  // Set: MultisignatureKeys
-  const multisignatureKeys = {
-    mandatoryKeys: account.keys.mandatoryKeys,
-    optionalKeys: account.keys.optionalKeys
-  }
-
   // Set: Options
   const options = DELEGATE.MULTISIG? {numberOfSignatures: account.keys.numberOfSignatures}: {};
 
@@ -79,11 +73,17 @@ export const sendTransaction = async(tx:any, assetSchema:any, isTrasnfer:boolean
 
   // Sign: Transaction
   if (DELEGATE.MULTISIG) {
+    // Set: MultisignatureKeys
+    const multisignatureKeys = {
+      mandatoryKeys: account.keys.mandatoryKeys.map((key: string) => {return cryptography.hexToBuffer(key)})||[],
+      optionalKeys: account.keys.optionalKeys.map((key: string) => {return cryptography.hexToBuffer(key)})||[],
+    }
+
     for (const passphrae of DELEGATE.PASSPHRASE) {
       tx = transactions.signMultiSignatureTransaction(
         assetSchema.schema,
         tx,
-        Buffer.from(networkIdentifier, "hex"),
+        cryptography.hexToBuffer(networkIdentifier),
         passphrae,
         multisignatureKeys,
         false
@@ -93,7 +93,7 @@ export const sendTransaction = async(tx:any, assetSchema:any, isTrasnfer:boolean
     tx = transactions.signTransaction(
       assetSchema.schema,
       tx,
-      Buffer.from(networkIdentifier, "hex"),
+      cryptography.hexToBuffer(networkIdentifier),
       DELEGATE.PASSPHRASE[0]
     )
   }
