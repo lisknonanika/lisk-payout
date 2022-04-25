@@ -1,11 +1,10 @@
 import mysql from 'mysql2/promise';
-import { apiClient } from '@liskhq/lisk-client';
-import { convertBeddowsToLSK, convertLSKToBeddows } from '@liskhq/lisk-transactions';
+import { convertBeddowsToLSK } from '@liskhq/lisk-transactions';
 import { getMyAccount, transfer } from '../common/lisk';
 import { findManage, updManage } from '../common/mysql';
 import { DELEGATE } from '../common/config';
 
-export const sendPool = async(liskClient:apiClient.APIClient, mysqlConnection:mysql.Connection):Promise<boolean> => {
+export const sendPool = async(mysqlConnection:mysql.Connection):Promise<boolean> => {
   try {
     console.info(`[sendPool] Start`);
 
@@ -23,7 +22,7 @@ export const sendPool = async(liskClient:apiClient.APIClient, mysqlConnection:my
     const nonce:string = account.sequence.nonce;
 
     // Transfer: pool
-    if (!await transfer(liskClient, nonce, DELEGATE.POOLADDRESS, manageRow.pool, "")) {
+    if (!await transfer(nonce, DELEGATE.POOLADDRESS, manageRow.pool, "")) {
       console.error(`[sendPool] transfer: failed`);
       return false;
     }

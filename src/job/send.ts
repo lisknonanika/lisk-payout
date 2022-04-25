@@ -1,25 +1,15 @@
 import mysql from 'mysql2/promise';
 import path from 'path';
-import { apiClient } from '@liskhq/lisk-client';
 import { NETWORK, DELEGATE, OUTPUT } from '../common/config';
-import { getLiskClient } from '../common/lisk';
 import { getMysqlConnection } from '../common/mysql';
 import { sendReward, outputData } from '../action';
 
 export const send = async() => {
   let isError = false;
-  let liskClient:apiClient.APIClient|undefined = undefined;
   let mysqlConnection:mysql.Connection|undefined = undefined;
   try {
     console.info(`[lisk-payout] Send Start: NETWORK=${NETWORK}`);
     if (DELEGATE.RATE.VOTER <= 0) return;
-
-    // get liskClient
-    liskClient = await getLiskClient();
-    if (!liskClient) {
-      isError = true;
-      return;
-    }
 
     // get mysql connection
     mysqlConnection = await getMysqlConnection();
@@ -36,7 +26,7 @@ export const send = async() => {
     }
 
     // send reward
-    if (!await sendReward(liskClient, mysqlConnection)) {
+    if (!await sendReward(mysqlConnection)) {
       isError = true;
       return;
     }
@@ -47,7 +37,6 @@ export const send = async() => {
     console.error(err);
     
   } finally {
-    if (liskClient) await liskClient.disconnect();
     if (mysqlConnection) {
       if (isError) {
         await mysqlConnection.rollback();

@@ -55,13 +55,23 @@ const getVotesReceivedNext = async(data:{ votes: Array<any>}, offset:number):Pro
   return data;
 }
 
-export const sendTransaction = async(client:apiClient.APIClient, transactionObject:any, assetSchema:any, isTrasnfer:boolean) => {
+const getNetworkId = async():Promise<string> => {
+  const response = await fetch(`${API_URL[NETWORK].slice( 0, -3 )}/status`);
+  return (await response.json()).networkId;
+}
+
+const getSchemas = async(moduleAssetId:string):Promise<any> => {
+  const response = await fetch(`${API_URL[NETWORK]}/transactions/schemas?moduleAssetId=${moduleAssetId}`);
+  return (await response.json()).data[0];
+}
+
+export const sendTransaction = async(tx:any, assetSchema:any, isTrasnfer:boolean) => {
   // Get: Delegate account
-  const account:Record<string, any> = await client.account.get(cryptography.getAddressFromLisk32Address(DELEGATE.ADDRESS));
+  const account = await getMyAccount();
   if (!account) return;
 
   // Get: NetworkIdentifier
-  const networkIdentifier = (await client.node.getNodeInfo()).networkIdentifier;
+  const networkIdentifier = await getNetworkId();
   if (!networkIdentifier) return;
 
   // Set: MultisignatureKeys
@@ -70,16 +80,11 @@ export const sendTransaction = async(client:apiClient.APIClient, transactionObje
     optionalKeys: account.keys.optionalKeys
   }
 
-  // Get: MinFee
-  let tx:Record<string, any> = await client.transaction.create(
-    transactionObject,
-    DELEGATE.PASSPHRASE[0],
-    {
-      includeSenderSignature: false,
-      multisignatureKeys: multisignatureKeys
-    }
-  );
-  tx.fee = await client.transaction.computeMinFee(tx);
+  // Set: Options
+  const options = DELEGATE.MULTISIG? {numberOfSignatures: account.keys.numberOfSignatures}: {};
+
+  // Set: MinFee
+  tx.fee = transactions.computeMinFee(assetSchema.schema, tx, options);
   if(isTrasnfer) tx.asset.amount = tx.asset.amount - tx.fee;
 
   // Sign: Transaction
@@ -104,13 +109,21 @@ export const sendTransaction = async(client:apiClient.APIClient, transactionObje
   }
 
   // Send: Transaction
-  console.log(await client.transaction.send(tx));
+  const payload = cryptography.bufferToHex(transactions.getBytes(assetSchema, tx));
+    const res = await fetch(`${API_URL[NETWORK]}/transactions?transaction=${payload}`,{
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json'
+      },
+    });
+    const json = await res.json();
+    console.log(json.transactionId);
 }
 
-export const transfer = async(client:apiClient.APIClient, nonce:string, recipientAddress:string, amount:string, message:string):Promise<boolean> => {
+export const transfer = async(nonce:string, recipientAddress:string, amount:string, message:string):Promise<boolean> => {
   try {
     // Get: Schema
-    const assetSchema = client.schemas.transactionsAssets.find((schema) => schema.moduleID === 2 && schema.assetID === 0);
+    const assetSchema = await getSchemas('2:0');
     if (!assetSchema) return false;
 
     // Set: Param
@@ -128,7 +141,7 @@ export const transfer = async(client:apiClient.APIClient, nonce:string, recipien
     }
 
     // Send: Transaction
-    await sendTransaction(client, transferparam, assetSchema, true);
+    await sendTransaction(transferparam, assetSchema, true);
 
     return true;
 
@@ -138,10 +151,10 @@ export const transfer = async(client:apiClient.APIClient, nonce:string, recipien
   }
 }
 
-export const delegateVote = async(client:apiClient.APIClient, nonce:string, recipientAddress:string, amount:string):Promise<boolean> => {
+export const delegateVote = async(nonce:string, recipientAddress:string, amount:string):Promise<boolean> => {
   try {
     // Get: Schema
-    const assetSchema = client.schemas.transactionsAssets.find((schema) => schema.moduleID === 5 && schema.assetID === 1);
+    const assetSchema = await getSchemas('5:1');
     if (!assetSchema) return false;
 
     // Set: param
@@ -162,7 +175,7 @@ export const delegateVote = async(client:apiClient.APIClient, nonce:string, reci
     }
 
     // Send: Transaction
-    await sendTransaction(client, voteParam, assetSchema, false);
+    await sendTransaction(voteParam, assetSchema, false);
 
     return true;
 

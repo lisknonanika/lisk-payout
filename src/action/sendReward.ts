@@ -1,10 +1,9 @@
 import mysql from 'mysql2/promise';
-import { apiClient } from '@liskhq/lisk-client';
 import { getMyAccount, getTransferTransaction, transfer } from '../common/lisk';
 import { findRewardTargetVoters, updVoter } from '../common/mysql';
 import { DELEGATE } from '../common/config';
 
-export const sendReward = async(liskClient:apiClient.APIClient, mysqlConnection:mysql.Connection):Promise<boolean> => {
+export const sendReward = async(mysqlConnection:mysql.Connection):Promise<boolean> => {
   try {
     console.info(`[sendReward] Start`);
 
@@ -20,7 +19,7 @@ export const sendReward = async(liskClient:apiClient.APIClient, mysqlConnection:
     // Main 1
     for (const voter of voterRows) {
       // Transfer: reward
-      if (!await transfer(liskClient, newNonce, voter.address, voter.reward, DELEGATE.MESSAGE)) {
+      if (!await transfer(newNonce, voter.address, voter.reward, DELEGATE.MESSAGE)) {
         console.error(`[sendReward] transfer failed: address=${voter.address}, reward=${voter.reward}`);
         continue;
       }
