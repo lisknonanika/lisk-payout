@@ -122,6 +122,7 @@ export const transfer = async(nonce:string, recipientAddress:string, amount:stri
       assetID: 0,
       nonce: BigInt(nonce),
       fee: BigInt(100000000),
+      signatures: [],
       senderPublicKey: cryptography.getPrivateAndPublicKeyFromPassphrase(DELEGATE.PASSPHRASE[0]).publicKey,
       asset: {
         amount: BigInt(amount),
@@ -153,6 +154,7 @@ export const delegateVote = async(nonce:string, recipientAddress:string, amount:
       assetID: 1,
       nonce: BigInt(nonce),
       fee: BigInt(100000000),
+      signatures: [],
       senderPublicKey: cryptography.getPrivateAndPublicKeyFromPassphrase(DELEGATE.PASSPHRASE[0]).publicKey,
       asset: {
         votes :[
