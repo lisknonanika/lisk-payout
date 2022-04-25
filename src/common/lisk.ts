@@ -99,7 +99,7 @@ export const sendTransaction = async(tx:any, assetSchema:any, isTrasnfer:boolean
   }
 
   // Send: Transaction
-  const payload = cryptography.bufferToHex(transactions.getBytes(assetSchema, tx));
+  const payload = cryptography.bufferToHex(transactions.getBytes(assetSchema.schema, tx));
     const res = await fetch(`${API_URL[NETWORK]}/transactions?transaction=${payload}`,{
       method: 'POST',
       headers: {
