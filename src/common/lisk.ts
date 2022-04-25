@@ -1,16 +1,6 @@
 import fetch from 'node-fetch';
-import { NETWORK, API_URL, WS_URL, DELEGATE } from './config';
-import { apiClient, cryptography, transactions } from '@liskhq/lisk-client';
-
-export const getLiskClient = async():Promise<apiClient.APIClient|undefined> => {
-  try {
-    return await apiClient.createWSClient(WS_URL[NETWORK]);
-    
-  } catch(err) {
-    console.error(err);
-    return undefined;
-  }
-}
+import { NETWORK, API_URL, DELEGATE } from './config';
+import { cryptography, transactions } from '@liskhq/lisk-client';
 
 export const getMyAccount = async():Promise<any> => {
   const response = await fetch(`${API_URL[NETWORK]}/accounts?username=${DELEGATE.NAME}&isDelegate=true&limit=1&offset=0`);
