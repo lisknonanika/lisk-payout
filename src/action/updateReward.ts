@@ -1,4 +1,5 @@
 import mysql from 'mysql2/promise';
+import { convertLSKToBeddows } from '@liskhq/lisk-transactions';
 import { REWARD } from '../common/type';
 import { NETWORK } from '../common/config';
 import { getForgedBlocks } from '../common/lisk';
@@ -12,26 +13,13 @@ export const updateReward = async(mysqlConnection:mysql.Connection):Promise<bool
     const rewardRow = await findReward(mysqlConnection);
 
     // Get: forged blocks
-    let curHeight = rewardRow? rewardRow.cur: 0;
-    const blocks = await getForgedBlocks(curHeight);
-    let height = 0;
-    try {
-      height = blocks[0].height;
-    } catch(err) {
-      console.info(`[updateReward] forged blocks not found`);
-      return false;
-    }
+    const forgedBlocks = await getForgedBlocks();
 
     // Initial setting: Reward data
-    const rewardData:REWARD = { id: NETWORK, cur: height, prev: height, forge: "0" };
+    const rewardData:REWARD = { id: NETWORK, cur: forgedBlocks, prev: forgedBlocks, forge: "0" };
     if (rewardRow) rewardData.prev = rewardRow.cur;
     if (rewardData.cur < rewardData.prev) rewardData.cur = rewardData.prev;
-    if (rewardData.cur > rewardData.prev) {
-      for (const block of blocks) {
-        if (block.height === rewardData.prev) break;
-        rewardData.forge = (BigInt(rewardData.forge) + BigInt(block.reward)).toString();
-      }
-    }
+    if (rewardData.cur > rewardData.prev) rewardData.forge = convertLSKToBeddows((rewardData.cur - rewardData.prev).toString());
     console.info(`[updateReward] cur=${rewardData.cur}, prev=${rewardData.prev}, forge=${rewardData.forge}`);
 
     // Update: Reward data

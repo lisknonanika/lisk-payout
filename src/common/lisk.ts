@@ -12,23 +12,11 @@ export const getTransferTransaction = async(sender:string, recipient:string):Pro
   return (await response.json()).data;
 }
 
-export const getForgedBlocks = async(height:number):Promise<any> => {
-  const data = new Array();
-  return await getForgedBlocksNext(height, data, 0);
-}
-
-const getForgedBlocksNext = async(height:number, data: Array<any>, offset:number):Promise<any> => {
-  const response = await fetch(`${API_URL[NETWORK]}/blocks?generatorUsername=${DELEGATE.NAME}&limit=100&offset=${offset}`);
+export const getForgedBlocks = async():Promise<any> => {
+  const response = await fetch(`${API_URL[NETWORK]}/blocks?generatorUsername=${DELEGATE.NAME}&offset=0&limit=1`);
   const json = await response.json();
-  if (!json.data) return data;
-
-  let minHeight = 0;
-  for (const block of json.data) {
-    minHeight = block.height;
-    if (height < minHeight) data.push(block);
-  }
-  if (height < minHeight) await getForgedBlocksNext(height, data, offset+100);
-  return data;
+  if (!json.meta) return 0;
+  return json.meta.total;
 }
 
 export const getVotesReceived = async():Promise<any> => {
