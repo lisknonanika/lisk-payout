@@ -3,7 +3,7 @@ CREATE TABLE payout.reward (
   cur int NOT NULL,
   prev int NOT NULL,
   forge varchar(45) NOT NULL,
-   PRIMARY KEY(id)
+  PRIMARY KEY(id)
 );
 
 CREATE TABLE payout.voter (
