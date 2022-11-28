@@ -4,9 +4,13 @@ export const API_URL:string[] = [
   "https://service.lisk.com/api/v2",
   "https://testnet-service.lisk.com/api/v2",
 ];
-export const WS_URL:string[] = [
-  "wss://mainnet-service.ysdev.work/ws",
-  "wss://testnet-service.ysdev.work/ws",
+export const API_MY_URL:string[] = [
+  "https://mainnet-service.liskcommulab.jp/api/v2",
+  "https://testnet-service.liskcommulab.jp/api/v2",
+];
+export const API_RETRY_URL:string[] = [
+  "https://mainnet-service.lisktools.eu/api/v2",
+  "https://testnet-service.lisktools.eu/api/v2",
 ];
 
 export const DB_PARAMS = {

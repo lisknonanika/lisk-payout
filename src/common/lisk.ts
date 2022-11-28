@@ -1,5 +1,5 @@
 import fetch from 'node-fetch';
-import { NETWORK, API_URL, DELEGATE } from './config';
+import { NETWORK, API_URL, API_MY_URL, API_RETRY_URL, DELEGATE } from './config';
 import { cryptography, transactions } from '@liskhq/lisk-client';
 
 export const getMyAccount = async():Promise<any> => {
@@ -8,8 +8,7 @@ export const getMyAccount = async():Promise<any> => {
   if (data) return data[0];
 
   // retry
-  const retryPath = NETWORK === 0? `mainnet-service.liskcommulab.jp`: `testnet-service.liskcommulab.jp`;
-  const response2 = await fetch(`http://${retryPath}/api/v2/accounts?username=${DELEGATE.NAME}&isDelegate=true&limit=1&offset=0`);
+  const response2 = await fetch(`${API_RETRY_URL[NETWORK]}/accounts?username=${DELEGATE.NAME}&isDelegate=true&limit=1&offset=0`);
   return (await response2.json()).data[0];
 }
 
@@ -19,8 +18,7 @@ export const getTransferTransaction = async(sender:string, recipient:string):Pro
   if (data) return data;
 
   // retry
-  const retryPath = NETWORK === 0? `mainnet-service.liskcommulab.jp`: `testnet-service.liskcommulab.jp`;
-  const response2 = await fetch(`http://${retryPath}/api/v2/transactions?senderAddress=${sender}&recipientAddress=${recipient}&limit=1&offset=0`);
+  const response2 = await fetch(`${API_RETRY_URL[NETWORK]}/transactions?senderAddress=${sender}&recipientAddress=${recipient}&limit=1&offset=0`);
   return (await response2.json()).data;
 }
 
@@ -30,8 +28,7 @@ export const getForgedBlocks = async():Promise<any> => {
   if (json.meta) return json.meta.total;
   
   // retry
-  const retryPath = NETWORK === 0? `mainnet-service.liskcommulab.jp`: `testnet-service.liskcommulab.jp`;
-  const response2 = await fetch(`http://${retryPath}/api/v2/blocks?generatorUsername=${DELEGATE.NAME}&offset=0&limit=1`);
+  const response2 = await fetch(`${API_RETRY_URL[NETWORK]}/blocks?generatorUsername=${DELEGATE.NAME}&offset=0&limit=1`);
   const json2 = await response2.json();
   if (json2.meta) return json2.meta.total;
   return 0;
@@ -43,7 +40,7 @@ export const getVotesReceived = async():Promise<any> => {
 }
 
 const getVotesReceivedNext = async(data:{ votes: Array<any>}, offset:number):Promise<any> => {
-  const response = await fetch(`${API_URL[NETWORK]}/votes_received?username=${DELEGATE.NAME}&aggregate=true&limit=100&offset=${offset}`);
+  const response = await fetch(`${API_MY_URL[NETWORK]}/votes_received?username=${DELEGATE.NAME}&aggregate=true&limit=100&offset=${offset}`);
   const json = await response.json();
   if (!json.data.votes) return data;
   for (const vote of json.data.votes) data.votes.push(vote);
