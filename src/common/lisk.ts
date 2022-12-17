@@ -9,10 +9,12 @@ export const getMyAccount = async():Promise<any> => {
     if (data) return data[0];
 
   } catch (err) {
-    // retry
-    const response2 = await fetch(`${API_RETRY_URL[NETWORK]}/accounts?username=${DELEGATE.NAME}&isDelegate=true&limit=1&offset=0`);
-    return (await response2.json()).data[0];
+    console.error(`[API ERROR] /accounts`);
   }
+
+  // retry
+  const response2 = await fetch(`${API_RETRY_URL[NETWORK]}/accounts?username=${DELEGATE.NAME}&isDelegate=true&limit=1&offset=0`);
+  return (await response2.json()).data[0];
 }
 
 export const getTransferTransaction = async(sender:string, recipient:string):Promise<any> => {
@@ -22,10 +24,12 @@ export const getTransferTransaction = async(sender:string, recipient:string):Pro
     if (data) return data;
 
   } catch(err) {
-    // retry
-    const response2 = await fetch(`${API_RETRY_URL[NETWORK]}/transactions?senderAddress=${sender}&recipientAddress=${recipient}&limit=1&offset=0`);
-    return (await response2.json()).data;
+    console.error(`[API ERROR] /transactions`);
   }
+
+  // retry
+  const response2 = await fetch(`${API_RETRY_URL[NETWORK]}/transactions?senderAddress=${sender}&recipientAddress=${recipient}&limit=1&offset=0`);
+  return (await response2.json()).data;
 }
 
 export const getForgedBlocks = async():Promise<any> => {
@@ -35,12 +39,14 @@ export const getForgedBlocks = async():Promise<any> => {
     if (json.meta) return json.meta.total;
 
   } catch(err) {
-    // retry
-    const response2 = await fetch(`${API_RETRY_URL[NETWORK]}/blocks?generatorUsername=${DELEGATE.NAME}&offset=0&limit=1`);
-    const json2 = await response2.json();
-    if (json2.meta) return json2.meta.total;
-    return 0;
+    console.error(`[API ERROR] /blocks`);
   }
+
+  // retry
+  const response2 = await fetch(`${API_RETRY_URL[NETWORK]}/blocks?generatorUsername=${DELEGATE.NAME}&offset=0&limit=1`);
+  const json2 = await response2.json();
+  if (json2.meta) return json2.meta.total;
+  return 0;
 }
 
 export const getVotesReceived = async():Promise<any> => {
