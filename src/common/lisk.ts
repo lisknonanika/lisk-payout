@@ -1,10 +1,10 @@
 import fetch from 'node-fetch';
-import { NETWORK, API_URL, API_MY_URL, API_RETRY_URL, DELEGATE } from './config';
+import { NETWORK, API_MY_URL, API_RETRY_URL, DELEGATE } from './config';
 import { cryptography, transactions } from '@liskhq/lisk-client';
 
 export const getMyAccount = async():Promise<any> => {
   try {
-    const response = await fetch(`${API_URL[NETWORK]}/accounts?username=${DELEGATE.NAME}&isDelegate=true&limit=1&offset=0`);
+    const response = await fetch(`${API_MY_URL[NETWORK]}/accounts?username=${DELEGATE.NAME}&isDelegate=true&limit=1&offset=0`);
     const data = (await response.json()).data;
     if (data) return data[0];
 
@@ -13,13 +13,13 @@ export const getMyAccount = async():Promise<any> => {
   }
 
   // retry
-  const response2 = await fetch(`${API_RETRY_URL[NETWORK]}/accounts?username=${DELEGATE.NAME}&isDelegate=true&limit=1&offset=0`);
-  return (await response2.json()).data[0];
+  const response = await fetch(`${API_RETRY_URL[NETWORK]}/accounts?username=${DELEGATE.NAME}&isDelegate=true&limit=1&offset=0`);
+  return (await response.json()).data[0];
 }
 
 export const getTransferTransaction = async(sender:string, recipient:string):Promise<any> => {
   try {
-    const response = await fetch(`${API_URL[NETWORK]}/transactions?senderAddress=${sender}&recipientAddress=${recipient}&limit=1&offset=0`);
+    const response = await fetch(`${API_MY_URL[NETWORK]}/transactions?senderAddress=${sender}&recipientAddress=${recipient}&limit=1&offset=0`);
     const data = (await response.json()).data;
     if (data) return data;
 
@@ -28,13 +28,13 @@ export const getTransferTransaction = async(sender:string, recipient:string):Pro
   }
 
   // retry
-  const response2 = await fetch(`${API_RETRY_URL[NETWORK]}/transactions?senderAddress=${sender}&recipientAddress=${recipient}&limit=1&offset=0`);
-  return (await response2.json()).data;
+  const response = await fetch(`${API_RETRY_URL[NETWORK]}/transactions?senderAddress=${sender}&recipientAddress=${recipient}&limit=1&offset=0`);
+  return (await response.json()).data;
 }
 
 export const getForgedBlocks = async():Promise<any> => {
   try {
-    const response = await fetch(`${API_URL[NETWORK]}/blocks?generatorUsername=${DELEGATE.NAME}&offset=0&limit=1`);
+    const response = await fetch(`${API_MY_URL[NETWORK]}/blocks?generatorUsername=${DELEGATE.NAME}&offset=0&limit=1`);
     const json = await response.json();
     if (json.meta) return json.meta.total;
 
@@ -43,9 +43,9 @@ export const getForgedBlocks = async():Promise<any> => {
   }
 
   // retry
-  const response2 = await fetch(`${API_RETRY_URL[NETWORK]}/blocks?generatorUsername=${DELEGATE.NAME}&offset=0&limit=1`);
-  const json2 = await response2.json();
-  if (json2.meta) return json2.meta.total;
+  const response = await fetch(`${API_RETRY_URL[NETWORK]}/blocks?generatorUsername=${DELEGATE.NAME}&offset=0&limit=1`);
+  const json = await response.json();
+  if (json.meta) return json.meta.total;
   return 0;
 }
 
@@ -64,12 +64,30 @@ const getVotesReceivedNext = async(data:{ votes: Array<any>}, offset:number):Pro
 }
 
 const getNetworkId = async():Promise<string> => {
-  const response = await fetch(`${API_URL[NETWORK].slice( 0, -3 )}/status`);
+  try {
+    const response = await fetch(`${API_MY_URL[NETWORK].slice( 0, -3 )}/status`);
+    return (await response.json()).networkId;
+
+  } catch(err) {
+    console.error(`[API ERROR] /status`);
+  }
+  
+  // retry
+  const response = await fetch(`${API_RETRY_URL[NETWORK].slice( 0, -3 )}/status`);
   return (await response.json()).networkId;
 }
 
 const getSchemas = async(moduleAssetId:string):Promise<any> => {
-  const response = await fetch(`${API_URL[NETWORK]}/transactions/schemas?moduleAssetId=${moduleAssetId}`);
+  try {
+    const response = await fetch(`${API_MY_URL[NETWORK]}/transactions/schemas?moduleAssetId=${moduleAssetId}`);
+    return (await response.json()).data[0];
+
+  } catch(err) {
+    console.error(`[API ERROR] /transactions/schemas`);
+  }
+  
+  // retry
+  const response = await fetch(`${API_RETRY_URL[NETWORK]}/transactions/schemas?moduleAssetId=${moduleAssetId}`);
   return (await response.json()).data[0];
 }
 
@@ -118,14 +136,14 @@ export const sendTransaction = async(tx:any, assetSchema:any, isTrasnfer:boolean
 
   // Send: Transaction
   const payload = cryptography.bufferToHex(transactions.getBytes(assetSchema.schema, tx));
-    const res = await fetch(`${API_URL[NETWORK]}/transactions?transaction=${payload}`,{
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json'
-      },
-    });
-    const json = await res.json();
-    console.log(json.transactionId);
+  const res = await fetch(`${API_MY_URL[NETWORK]}/transactions?transaction=${payload}`,{
+    method: 'POST',
+    headers: {
+      'Accept': 'application/json'
+    },
+  });
+  const json = await res.json();
+  console.log(json.transactionId);
 }
 
 export const transfer = async(nonce:string, recipientAddress:string, amount:string, message:string):Promise<boolean> => {
