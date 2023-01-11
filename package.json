@@ -5,7 +5,8 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "build": "./node_modules/.bin/tsc --build",
+    "build": "rm -rf ./dist | ./node_modules/.bin/tsc --build",
+    "build-win": "rmdir /s /q .\\dist | .\\node_modules\\.bin\\tsc --build",
     "app": "node --experimental-modules --es-module-specifier-resolution=node ./dist/app.js"
   },
   "repository": {
