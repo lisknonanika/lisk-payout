@@ -28,7 +28,7 @@ export const sendReward = async (mysqlConnection: mysql.Connection): Promise<boo
       newNonce = (BigInt(newNonce) + BigInt(1)).toString();
 
       // sleep 1 sec.
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 1500));
     }
 
     // sleep 30 sec.
@@ -43,7 +43,7 @@ export const sendReward = async (mysqlConnection: mysql.Connection): Promise<boo
       await updVoter(mysqlConnection, true, { id: voter.id, address: voter.address, reward: "0" });
 
       // sleep 1 sec.
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 1500));
     }
     return true;
 

@@ -1,5 +1,5 @@
 import fetch from 'node-fetch';
-import { NETWORK, API_MY_URL, API_RETRY_URL, DELEGATE } from './config';
+import { NETWORK, API_URL, API_MY_URL, API_RETRY_URL, DELEGATE } from './config';
 import { cryptography, transactions } from '@liskhq/lisk-client';
 
 export const getMyAccount = async (): Promise<any> => {
@@ -156,7 +156,7 @@ export const sendTransaction = async (tx: any, assetSchema: any, isTrasnfer: boo
 
   // Send: Transaction
   const payload = cryptography.bufferToHex(transactions.getBytes(assetSchema.schema, tx));
-  const res = await fetch(`${API_MY_URL[NETWORK]}/transactions?transaction=${payload}`, {
+  const res = await fetch(`${API_URL[NETWORK]}/transactions?transaction=${payload}`, {
     method: 'POST',
     headers: {
       'Accept': 'application/json'
