@@ -34,7 +34,7 @@ export const getTransferTransaction = async (sender: string, recipient: string):
 
 export const isTargetTransfer = async (sender: string, recipient: string): Promise<boolean> => {
   try {
-    const response = await fetch(`${API_MY_URL[NETWORK]}/transactions?senderAddress=${sender}&recipientAddress=${recipient}&includePending=true&limit=1&offset=0`);
+    const response = await fetch(`${API_MY_URL[NETWORK]}/transactions?senderAddress=${sender}&recipientAddress=${recipient}&limit=1&offset=0`);
     const data = (await response.json()).data;
     if (!data) return true;
     if (data[0].isPending) return false;
@@ -45,7 +45,7 @@ export const isTargetTransfer = async (sender: string, recipient: string): Promi
   }
 
   // retry
-  const response = await fetch(`${API_RETRY_URL[NETWORK]}/transactions?senderAddress=${sender}&recipientAddress=${recipient}&includePending=true&limit=1&offset=0`);
+  const response = await fetch(`${API_RETRY_URL[NETWORK]}/transactions?senderAddress=${sender}&recipientAddress=${recipient}&limit=1&offset=0`);
   const data = (await response.json()).data;
   if (!data) return true;
   if (data[0].isPending) return false;

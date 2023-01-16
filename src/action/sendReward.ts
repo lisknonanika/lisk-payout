@@ -18,9 +18,6 @@ export const sendReward = async (mysqlConnection: mysql.Connection): Promise<boo
 
     // Main 1
     for (const voter of voterRows) {
-      // Check: isTarget
-      if (!await isTargetTransfer(DELEGATE.ADDRESS, voter.address)) continue;
-
       // Transfer: reward
       if (!await transfer(newNonce, voter.address, voter.reward, DELEGATE.MESSAGE)) {
         console.error(`[sendReward] transfer failed: address=${voter.address}, reward=${voter.reward}`);
