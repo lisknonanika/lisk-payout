@@ -9,8 +9,8 @@ export const API_MY_URL:string[] = [
   "https://testnet-service.liskcommulab.jp/api/v2",
 ];
 export const API_RETRY_URL:string[] = [
-  "https://mainnet-service.lisktools.eu/api/v2",
-  "https://testnet-service.lisktools.eu/api/v2",
+  "",
+  "",
 ];
 
 export const DB_PARAMS = {
