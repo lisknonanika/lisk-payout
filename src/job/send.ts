@@ -4,9 +4,9 @@ import { NETWORK, DELEGATE, OUTPUT } from '../common/config';
 import { getMysqlConnection } from '../common/mysql';
 import { sendReward, outputData } from '../action';
 
-export const send = async() => {
+export const send = async () => {
   let isError = false;
-  let mysqlConnection:mysql.Connection|undefined = undefined;
+  let mysqlConnection: mysql.Connection | undefined = undefined;
   try {
     console.info(`[lisk-payout] Send Start: NETWORK=${NETWORK}`);
     if (DELEGATE.RATE.VOTER <= 0) return;
@@ -20,7 +20,7 @@ export const send = async() => {
     await mysqlConnection.beginTransaction();
 
     try {
-      await outputData(mysqlConnection, path.join(OUTPUT.DIR,  `beforeSend_${OUTPUT.FILE}`));
+      await outputData(mysqlConnection, path.join(OUTPUT.DIR, `beforeSend_${OUTPUT.FILE}`));
     } catch (err) {
       // none
     }
@@ -35,7 +35,7 @@ export const send = async() => {
     console.info(`[lisk-payout] Send System error`);
     isError = true;
     console.error(err);
-    
+
   } finally {
     if (mysqlConnection) {
       if (isError) {

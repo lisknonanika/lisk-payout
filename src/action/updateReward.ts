@@ -5,7 +5,7 @@ import { NETWORK } from '../common/config';
 import { getForgedBlocks } from '../common/lisk';
 import { findReward, updReward } from '../common/mysql';
 
-export const updateReward = async(mysqlConnection:mysql.Connection):Promise<boolean> => {
+export const updateReward = async (mysqlConnection: mysql.Connection): Promise<boolean> => {
   try {
     console.info(`[updateReward] Start`);
 
@@ -16,7 +16,7 @@ export const updateReward = async(mysqlConnection:mysql.Connection):Promise<bool
     const forgedBlocks = await getForgedBlocks();
 
     // Initial setting: Reward data
-    const rewardData:REWARD = { id: NETWORK, cur: forgedBlocks, prev: forgedBlocks, forge: "0" };
+    const rewardData: REWARD = { id: NETWORK, cur: forgedBlocks, prev: forgedBlocks, forge: "0" };
     if (rewardRow) rewardData.prev = rewardRow.cur;
     if (rewardData.cur < rewardData.prev) rewardData.cur = rewardData.prev;
     if (rewardData.cur > rewardData.prev) rewardData.forge = convertLSKToBeddows((rewardData.cur - rewardData.prev).toString());

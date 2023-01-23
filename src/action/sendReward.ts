@@ -17,7 +17,10 @@ export const sendReward = async (mysqlConnection: mysql.Connection): Promise<boo
     let newNonce: string = nonce;
 
     // Main 1
-    for (const voter of voterRows) {
+    for await (const voter of voterRows) {
+      // Check: isTarget
+      if (!await isTargetTransfer(DELEGATE.ADDRESS, voter.address)) continue;
+
       // Transfer: reward
       if (!await transfer(newNonce, voter.address, voter.reward, DELEGATE.MESSAGE)) {
         console.error(`[sendReward] transfer failed: address=${voter.address}, reward=${voter.reward}`);
@@ -27,7 +30,7 @@ export const sendReward = async (mysqlConnection: mysql.Connection): Promise<boo
       // Add newNonce
       newNonce = (BigInt(newNonce) + BigInt(1)).toString();
 
-      // sleep 1 sec.
+      // sleep 1.5 sec.
       await new Promise(resolve => setTimeout(resolve, 1500));
     }
 
@@ -35,14 +38,14 @@ export const sendReward = async (mysqlConnection: mysql.Connection): Promise<boo
     await new Promise(resolve => setTimeout(resolve, 30000));
 
     // Main 2
-    for (const voter of voterRows) {
+    for await (const voter of voterRows) {
       // Check: isTarget
       if (await isTargetTransfer(DELEGATE.ADDRESS, voter.address)) continue;
 
       // Update: voter
       await updVoter(mysqlConnection, true, { id: voter.id, address: voter.address, reward: "0" });
 
-      // sleep 1 sec.
+      // sleep 1.5 sec.
       await new Promise(resolve => setTimeout(resolve, 1500));
     }
     return true;

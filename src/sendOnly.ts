@@ -27,7 +27,7 @@ export const updateVoterTable = async (): Promise<boolean> => {
     }
 
     // Update: voters
-    for (const voter of beforeVoters) {
+    for await (const voter of beforeVoters) {
       // Check: isTarget
       if (await isTargetTransfer(DELEGATE.ADDRESS, voter.address)) continue;
 

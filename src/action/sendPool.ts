@@ -4,7 +4,7 @@ import { getMyAccount, transfer } from '../common/lisk';
 import { findManage, updManage } from '../common/mysql';
 import { DELEGATE } from '../common/config';
 
-export const sendPool = async(mysqlConnection:mysql.Connection):Promise<boolean> => {
+export const sendPool = async (mysqlConnection: mysql.Connection): Promise<boolean> => {
   try {
     console.info(`[sendPool] Start`);
 
@@ -13,13 +13,13 @@ export const sendPool = async(mysqlConnection:mysql.Connection):Promise<boolean>
     if (!manageRow) return true;
 
     // Floor
-    const pool:number = +convertBeddowsToLSK(manageRow.pool);
+    const pool: number = +convertBeddowsToLSK(manageRow.pool);
     if (pool < DELEGATE.MINIMUMPAY.POOL) return true;
     console.info(`[sendPool] amount=${manageRow.pool}`);
 
     // Get: delegate account
     const account = await getMyAccount();
-    const nonce:string = account.sequence.nonce;
+    const nonce: string = account.sequence.nonce;
 
     // Transfer: pool
     if (!await transfer(nonce, DELEGATE.POOLADDRESS, manageRow.pool, "")) {

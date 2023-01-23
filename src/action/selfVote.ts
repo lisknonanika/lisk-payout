@@ -4,7 +4,7 @@ import { getMyAccount, delegateVote } from '../common/lisk';
 import { findManage, updManage } from '../common/mysql';
 import { DELEGATE } from '../common/config';
 
-export const selfVote = async(mysqlConnection:mysql.Connection):Promise<boolean> => {
+export const selfVote = async (mysqlConnection: mysql.Connection): Promise<boolean> => {
   try {
     console.info(`[selfVote] Start`);
 
@@ -13,17 +13,17 @@ export const selfVote = async(mysqlConnection:mysql.Connection):Promise<boolean>
     if (!manageRow) return true;
 
     // Floor
-    const self:number = +convertBeddowsToLSK(manageRow.self);
+    const self: number = +convertBeddowsToLSK(manageRow.self);
     if (self < DELEGATE.MINIMUMPAY.SELF) return true;
     const amount = Math.floor(self * 0.1) / 0.1;
     console.info(`[selfVote] amount=${amount}`);
 
     // Get: delegate account
     const account = await getMyAccount();
-    let nonce:string = account.sequence.nonce;
+    let nonce: string = account.sequence.nonce;
 
     // Vote
-    if(!await delegateVote(nonce, DELEGATE.ADDRESS, convertLSKToBeddows(amount.toString()))) {
+    if (!await delegateVote(nonce, DELEGATE.ADDRESS, convertLSKToBeddows(amount.toString()))) {
       console.error(`[selfVote] delegate vote: failed`);
       return false;
     }
@@ -32,7 +32,8 @@ export const selfVote = async(mysqlConnection:mysql.Connection):Promise<boolean>
     await updManage(mysqlConnection, true, {
       id: manageRow.id,
       self: (BigInt(convertLSKToBeddows(self.toString())) - BigInt(convertLSKToBeddows(amount.toString()))).toString(),
-      pool: manageRow.pool });
+      pool: manageRow.pool
+    });
 
     return true;
 

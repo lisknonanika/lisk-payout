@@ -1,14 +1,16 @@
-export const NETWORK:number = 1;    // 0:Mainnet, 1:Testnet
+export const NETWORK: number = 1;    // 0:Mainnet, 1:Testnet
 
-export const API_URL:string[] = [
+export const API_URL: string[] = [
   "https://service.lisk.com/api/v2",
   "https://testnet-service.lisk.com/api/v2",
 ];
-export const API_MY_URL:string[] = [
+
+export const API_MY_URL: string[] = [
   "https://mainnet-service.liskcommulab.jp/api/v2",
   "https://testnet-service.liskcommulab.jp/api/v2",
 ];
-export const API_RETRY_URL:string[] = [
+
+export const API_RETRY_URL: string[] = [
   "",
   "",
 ];

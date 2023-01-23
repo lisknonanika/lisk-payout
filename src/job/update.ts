@@ -4,9 +4,9 @@ import { NETWORK, DELEGATE, OUTPUT } from '../common/config';
 import { getMysqlConnection } from '../common/mysql';
 import { updateReward, updateVoter, updateManage, outputData } from '../action';
 
-export const update = async() => {
+export const update = async () => {
   let isError = false;
-  let mysqlConnection:mysql.Connection|undefined = undefined;
+  let mysqlConnection: mysql.Connection | undefined = undefined;
   try {
     console.info(`[lisk-payout] Update Start: NETWORK=${NETWORK}`);
 
@@ -41,10 +41,10 @@ export const update = async() => {
     }
 
   } catch (err) {
-      console.info(`[lisk-payout] Update System error`);
-      isError = true;
-      console.error(err);
-      
+    console.info(`[lisk-payout] Update System error`);
+    isError = true;
+    console.error(err);
+
   } finally {
     if (mysqlConnection) {
       if (isError) {

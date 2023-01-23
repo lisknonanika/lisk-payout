@@ -4,9 +4,9 @@ import { NETWORK, DELEGATE, OUTPUT } from '../common/config';
 import { getMysqlConnection } from '../common/mysql';
 import { sendPool, selfVote, outputData } from '../action';
 
-export const manage = async() => {
+export const manage = async () => {
   let isError = false;
-  let mysqlConnection:mysql.Connection|undefined = undefined;
+  let mysqlConnection: mysql.Connection | undefined = undefined;
   try {
     console.info(`[lisk-payout] Manage Start: NETWORK=${NETWORK}`);
     if (DELEGATE.RATE.POOL <= 0 && DELEGATE.RATE.SELF <= 0) return;
@@ -41,7 +41,7 @@ export const manage = async() => {
     console.info(`[lisk-payout] Manage System error`);
     isError = true;
     console.error(err);
-    
+
   } finally {
     if (mysqlConnection) {
       if (isError) {

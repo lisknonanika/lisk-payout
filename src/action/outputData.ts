@@ -4,11 +4,11 @@ import { OUTPUTDATA } from '../common/type';
 import { OUTPUT } from '../common/config';
 import { findReward, findVoters, findManage } from '../common/mysql';
 
-export const outputData = async(mysqlConnection:mysql.Connection, filePath:string):Promise<boolean> => {
+export const outputData = async (mysqlConnection: mysql.Connection, filePath: string): Promise<boolean> => {
   try {
     console.info(`[outputData] Start`);
 
-    const data:OUTPUTDATA = {
+    const data: OUTPUTDATA = {
       reward: { cur: 0, prev: 0, forge: "" },
       manage: { self: "", pool: "" },
       voter: new Array()
@@ -33,7 +33,7 @@ export const outputData = async(mysqlConnection:mysql.Connection, filePath:strin
     const voterRows = await findVoters(mysqlConnection);
     if (voterRows) {
       data['voter'] = new Array();
-      for (const row of voterRows) {
+      for await (const row of voterRows) {
         data.voter.push({ address: row.address, reward: row.reward });
       }
     }

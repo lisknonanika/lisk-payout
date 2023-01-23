@@ -78,7 +78,7 @@ const getVotesReceivedNext = async (data: { votes: Array<any> }, offset: number)
   const response = await fetch(`${API_MY_URL[NETWORK]}/votes_received?username=${DELEGATE.NAME}&aggregate=true&limit=100&offset=${offset}`);
   const json = await response.json();
   if (!json.data.votes) return data;
-  for (const vote of json.data.votes) data.votes.push(vote);
+  for await (const vote of json.data.votes) data.votes.push(vote);
   if (data.votes.length < json.meta.total) await getVotesReceivedNext(data, offset + 100);
   return data;
 }
@@ -111,59 +111,70 @@ const getSchemas = async (moduleAssetId: string): Promise<any> => {
   return (await response.json()).data[0];
 }
 
-export const sendTransaction = async (tx: any, assetSchema: any, isTrasnfer: boolean) => {
-  // Get: Delegate account
-  const account = await getMyAccount();
-  if (!account) return;
+export const sendTransaction = async (tx: any, assetSchema: any, isTrasnfer: boolean): Promise<boolean> => {
+  try {
+    // Get: Delegate account
+    const account = await getMyAccount();
+    if (!account) return false;
 
-  // Get: NetworkIdentifier
-  const networkIdentifier = await getNetworkId();
-  if (!networkIdentifier) return;
+    // Get: NetworkIdentifier
+    const networkIdentifier = await getNetworkId();
+    if (!networkIdentifier) return false;
 
-  // Set: Options
-  const options = DELEGATE.MULTISIG ? { numberOfSignatures: account.keys.numberOfSignatures } : {};
+    // Set: Options
+    const options = DELEGATE.MULTISIG ? { numberOfSignatures: account.keys.numberOfSignatures } : {};
 
-  // Set: MinFee
-  tx.fee = transactions.computeMinFee(assetSchema.schema, tx, options);
-  if (isTrasnfer) tx.asset.amount = tx.asset.amount - tx.fee;
+    // Set: MinFee
+    tx.fee = transactions.computeMinFee(assetSchema.schema, tx, options);
+    if (isTrasnfer) tx.asset.amount = tx.asset.amount - tx.fee;
 
-  // Sign: Transaction
-  if (DELEGATE.MULTISIG) {
-    // Set: MultisignatureKeys
-    const multisignatureKeys = {
-      mandatoryKeys: account.keys.mandatoryKeys.map((key: string) => { return cryptography.hexToBuffer(key) }) || [],
-      optionalKeys: account.keys.optionalKeys.map((key: string) => { return cryptography.hexToBuffer(key) }) || [],
-    }
+    // Sign: Transaction
+    if (DELEGATE.MULTISIG) {
+      // Set: MultisignatureKeys
+      const multisignatureKeys = {
+        mandatoryKeys: account.keys.mandatoryKeys.map((key: string) => { return cryptography.hexToBuffer(key) }) || [],
+        optionalKeys: account.keys.optionalKeys.map((key: string) => { return cryptography.hexToBuffer(key) }) || [],
+      }
 
-    for (const passphrae of DELEGATE.PASSPHRASE) {
-      tx = transactions.signMultiSignatureTransaction(
+      for await (const passphrae of DELEGATE.PASSPHRASE) {
+        tx = transactions.signMultiSignatureTransaction(
+          assetSchema.schema,
+          tx,
+          cryptography.hexToBuffer(networkIdentifier),
+          passphrae,
+          multisignatureKeys,
+          false
+        )
+      }
+    } else {
+      tx = transactions.signTransaction(
         assetSchema.schema,
         tx,
         cryptography.hexToBuffer(networkIdentifier),
-        passphrae,
-        multisignatureKeys,
-        false
+        DELEGATE.PASSPHRASE[0]
       )
     }
-  } else {
-    tx = transactions.signTransaction(
-      assetSchema.schema,
-      tx,
-      cryptography.hexToBuffer(networkIdentifier),
-      DELEGATE.PASSPHRASE[0]
-    )
-  }
 
-  // Send: Transaction
-  const payload = cryptography.bufferToHex(transactions.getBytes(assetSchema.schema, tx));
-  const res = await fetch(`${API_URL[NETWORK]}/transactions?transaction=${payload}`, {
-    method: 'POST',
-    headers: {
-      'Accept': 'application/json'
-    },
-  });
-  const json = await res.json();
-  console.log(json.transactionId);
+    // Send: Transaction
+    const payload = cryptography.bufferToHex(transactions.getBytes(assetSchema.schema, tx));
+    const res = await fetch(`${API_URL[NETWORK]}/transactions?transaction=${payload}`, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json'
+      },
+    });
+    const json = await res.json();
+    if (json.transactionId) {
+      console.log(json.transactionId);
+      return true;
+    } else {
+      console.log(json.message);
+      return false;
+    }
+  } catch (err) {
+    console.log(err);
+    return false;
+  }
 }
 
 export const transfer = async (nonce: string, recipientAddress: string, amount: string, message: string): Promise<boolean> => {
@@ -188,9 +199,7 @@ export const transfer = async (nonce: string, recipientAddress: string, amount: 
     }
 
     // Send: Transaction
-    await sendTransaction(transferparam, assetSchema, true);
-
-    return true;
+    return await sendTransaction(transferparam, assetSchema, true);
 
   } catch (err) {
     console.error(err);
@@ -223,9 +232,7 @@ export const delegateVote = async (nonce: string, recipientAddress: string, amou
     }
 
     // Send: Transaction
-    await sendTransaction(voteParam, assetSchema, false);
-
-    return true;
+    return await sendTransaction(voteParam, assetSchema, false);
 
   } catch (err) {
     console.error(err);
