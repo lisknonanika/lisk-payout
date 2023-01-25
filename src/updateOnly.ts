@@ -7,13 +7,13 @@ export const updateVoterTable = async (): Promise<boolean> => {
   let isError = false;
   let mysqlConnection: mysql.Connection | undefined = undefined;
   try {
-    console.info(`[lisk-payout] SendOnly Update Start: NETWORK=${NETWORK}`);
+    console.info(`[lisk-payout] UpdateOnly Start: NETWORK=${NETWORK}`);
     if (DELEGATE.RATE.VOTER <= 0) return false;
 
     // get mysql connection
     mysqlConnection = await getMysqlConnection();
     if (!mysqlConnection) {
-      console.info(`[lisk-payout] SendOnly Update DB Connection Error.`);
+      console.info(`[lisk-payout] UpdateOnly DB Connection Error.`);
       isError = true;
       return false;
     }
@@ -21,7 +21,7 @@ export const updateVoterTable = async (): Promise<boolean> => {
     // Find: voters (before)
     const beforeVoters = await findRewardTargetVoters(mysqlConnection);
     if (!beforeVoters || beforeVoters.length === 0) {
-      console.info(`[lisk-payout] SendOnly Update Target Not Found.`);
+      console.info(`[lisk-payout] UpdateOnly Target Not Found.`);
       return false;
     }
 
@@ -42,7 +42,7 @@ export const updateVoterTable = async (): Promise<boolean> => {
     return afterVoters !== undefined && afterVoters.length > 0;
 
   } catch (err) {
-    console.info(`[lisk-payout] SendOnly Update System error`);
+    console.info(`[lisk-payout] UpdateOnly System error`);
     isError = true;
     console.error(err);
     return false;
@@ -56,7 +56,7 @@ export const updateVoterTable = async (): Promise<boolean> => {
       }
       await mysqlConnection.end();
     }
-    console.info(`[lisk-payout] SendOnly Update End: NETWORK=${NETWORK}`);
+    console.info(`[lisk-payout] UpdateOnly End: NETWORK=${NETWORK}`);
   }
 }
 
