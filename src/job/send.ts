@@ -2,7 +2,7 @@ import mysql from 'mysql2/promise';
 import path from 'path';
 import { NETWORK, DELEGATE, OUTPUT } from '../common/config';
 import { getMysqlConnection } from '../common/mysql';
-import { sendReward, outputData } from '../action';
+import { sendReward, outputData, outputRecoverySQL } from '../action';
 
 export const send = async () => {
   let isError = false;
@@ -21,6 +21,8 @@ export const send = async () => {
 
     try {
       await outputData(mysqlConnection, path.join(OUTPUT.DIR, `beforeSend_${OUTPUT.FILE}`));
+      await outputRecoverySQL(mysqlConnection, path.join(OUTPUT.DIR, "sql", `recovery.sql`));
+
     } catch (err) {
       // none
     }
