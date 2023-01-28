@@ -21,7 +21,7 @@ export const send = async () => {
 
     try {
       await outputData(mysqlConnection, path.join(OUTPUT.DIR, `beforeSend_${OUTPUT.FILE}`));
-      await outputRecoverySQL(mysqlConnection, path.join(OUTPUT.DIR, "sql", `recovery.sql`));
+      await outputRecoverySQL(mysqlConnection);
 
     } catch (err) {
       // none

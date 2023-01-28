@@ -1,4 +1,5 @@
 import mysql from 'mysql2/promise';
+import path from 'path';
 import fs from 'fs';
 import { OUTPUTDATA } from '../common/type';
 import { OUTPUT, NETWORK } from '../common/config';
@@ -53,12 +54,12 @@ export const outputData = async (mysqlConnection: mysql.Connection, filePath: st
   }
 }
 
-
-export const outputRecoverySQL = async (mysqlConnection: mysql.Connection, filePath: string): Promise<boolean> => {
+export const outputRecoverySQL = async (mysqlConnection: mysql.Connection): Promise<boolean> => {
   try {
     console.info(`[outputRecoverySQL] Start`);
-
-    fs.mkdirSync(OUTPUT.DIR, { recursive: true });
+    const dirPath = path.join(OUTPUT.DIR, "sql");
+    const filePath = path.join(dirPath, "recovery.sql");
+    fs.mkdirSync(dirPath, { recursive: true });
 
     // Find: Voters
     const voterRows = await findVoters(mysqlConnection);
